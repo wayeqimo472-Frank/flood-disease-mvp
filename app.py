@@ -50,7 +50,7 @@ st.sidebar.markdown(
     """,
     unsafe_allow_html=True,
 )
-st.sidebar.caption(f"v0.6 · {case_pack.name} · 案例包 {case_pack.version}")
+st.sidebar.caption(f"v0.7 · {case_pack.name} · 案例包 {case_pack.version}")
 
 navigation = st.navigation(
     {
@@ -81,6 +81,12 @@ navigation = st.navigation(
                 title="田块数据管理",
                 icon="📁",
                 url_path="field-data",
+            ),
+            st.Page(
+                "pages/6_integration.py",
+                title="数据拼接与公开案例",
+                icon="🛰",
+                url_path="integration",
             ),
         ],
         "科研依据": [

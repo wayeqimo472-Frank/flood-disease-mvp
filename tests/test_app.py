@@ -42,6 +42,13 @@ class AppSmokeTests(unittest.TestCase):
         app.switch_page(str(PROJECT_DIR / "pages" / "5_evidence.py")).run(timeout=20)
         return app
 
+    def _integration_app(self) -> AppTest:
+        app = self._app()
+        app.switch_page(
+            str(PROJECT_DIR / "pages" / "6_integration.py")
+        ).run(timeout=20)
+        return app
+
     def _cards(self, app: AppTest) -> list[str]:
         markup = next(
             item.value for item in app.markdown if "result-metrics" in item.value
@@ -75,6 +82,20 @@ class AppSmokeTests(unittest.TestCase):
             any("最近一次计算摘要" in item.value for item in app.subheader)
         )
         self.assertTrue(any("暂无记录" in item.value for item in app.markdown))
+
+    def test_integration_page_renders_without_exception(self) -> None:
+        app = self._integration_app()
+        self.assertFalse(app.exception)
+        self.assertEqual(app.title[0].value, "数据拼接与公开案例")
+        self.assertTrue(
+            any("当前数据库还没有导入公开数据索引" in item.value for item in app.warning)
+        )
+        self.assertTrue(
+            any("ICASA 标准字段映射" in item.value for item in app.subheader)
+        )
+        self.assertTrue(
+            any("FTW 代码许可为 MIT" in item.value for item in app.caption)
+        )
 
     def test_risk_page_renders_without_exception(self) -> None:
         app = self._risk_app()

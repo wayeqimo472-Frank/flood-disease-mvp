@@ -1,6 +1,6 @@
 # 洪涝次生灾害风险原型
 
-当前完成参数先验、最小风险计算核心、可切换案例包、本地 SQLite 持久化和 Streamlit 五页原型。
+当前完成参数先验、最小风险计算核心、可切换案例包、本地 SQLite 持久化、公开数据拼接和 Streamlit 六页原型。
 
 当前案例包：
 
@@ -15,6 +15,9 @@
 - `case_packs/us_corn_belt_cscap_2011_2015/`：美国玉米带公开数据、处理结果和监测案例。
 - `case_pack.py`：案例包发现、读取和路径校验。
 - `storage.py`：本地 SQLite 观测批次、田块记录和计算历史。
+- `data_integration.py`：公开数据导入、ICASA 映射、GeoJSON 与 SAR 指标校验。
+- `data/icasa_field_mapping_v0.1.csv`：本项目字段与 ICASA 标准变量子集的映射。
+- `tools/import_public_data.py`：把美国 CSCAP、公开证据和缺口表写入 `app.db`。
 - `data/public_dataset_register_v0.2.csv`：公开数据来源、许可、字段边界和本地状态。
 - `data/public_data_gap_matrix_v0.2.csv`：项目级P0—P2数据缺口矩阵。
 - `data/all_missing_data_v0.3.csv`：50项逐字段缺失数据总表。
@@ -25,7 +28,7 @@
 - `risk_engine.py`：规则型风险与干预窗口计算核心。
 - `app.py`：Streamlit 导航入口。
 - `ui_common.py`：共享标签、情景状态、结果卡片和安全提示。
-- `pages/`：项目总览、风险筛查、干预窗口、田块数据、科研依据五个页面。
+- `pages/`：项目总览、风险筛查、干预窗口、田块数据、科研依据、数据拼接六个页面。
 - `batch_io.py`：田块观测CSV模板、校验、批量计算和结果导出。
 - `tests/test_risk_engine.py`：典型情景自检。
 - `tests/test_app.py`：页面冒烟测试。
@@ -44,6 +47,7 @@
 - `scripts/build_public_evidence_db.py`：从公开证据CSV重建SQLite数据库。
 - `docs/v0.4_acceptance_freeze.md`：v0.4验收、哈希和冻结边界。
 - `docs/v0.6_case_pack_and_sqlite.md`：案例包、SQLite结构和单用户边界。
+- `docs/v0.7_data_integration.md`：ICASA、FTW、SAR 和公开数据的拼接边界。
 - `docs/public_data_expansion_v0.2.md`：2026-11-13公开数据扩展和缺口判断。
 - `docs/all_missing_data_v0.3.md`：全部缺失字段的分组说明和优先级。
 - `docs/demo_scenarios_v0.4.md`：逻辑测试情景及预期结果。
@@ -53,6 +57,7 @@
 
 ```powershell
 .\.venv\Scripts\python.exe risk_engine.py
+.\.venv\Scripts\python.exe tools\import_public_data.py
 .\.venv\Scripts\python.exe -m unittest discover -s tests -v
 .\.venv\Scripts\streamlit.exe run app.py --server.address 127.0.0.1
 ```
@@ -78,6 +83,7 @@
 - CSV上传在当前浏览器会话中保留，并写入 `data/app.db`；相同文件按 SHA256 去重；
 - 田块数据页可重新载入数据库中的历史批次，并下载原始文件和计算结果；
 - 总览页显示最近计算历史，计算结果与案例包版本可追溯。
+- 数据拼接页展示美国 CSCAP、公开案例、ICASA 字段映射、田块 GeoJSON 和 SAR 地块指标接口。
 
 ## 案例包与数据库
 
@@ -118,6 +124,9 @@ $env:FLOOD_APP_DB_PATH="D:\APP\flood_disease\app.db"
 - `import_batches`：CSV文件、哈希、导入时间和错误摘要；
 - `field_observations`：逐田块原始字段与计算结果；
 - `assessment_runs`：单次风险计算的输入、案例版本和结果。
+- `external_datasets`、`external_records`：公开数据的来源、许可、哈希和逐行记录。
+- `plot_geometries`：FTW 预测或现场测绘的地块几何。
+- `plot_flood_metrics`：遥感推算的地块淹没比例、洪水起止和退水日。
 
 当前数据库已预载一个美国案例外部观测批次：168条，案例ID为 `us_corn_belt_cscap_2011_2015`。计算历史为空。
 
@@ -153,3 +162,5 @@ $env:FLOOD_APP_DB_PATH="D:\APP\flood_disease\app.db"
 - 当前不输出病害导致的精确产量损失；
 - 所有结果都必须保留“文献先验/情景规则”标签。
 - 美国案例不输出定量风险，原因是公开数据没有形成同一田块的洪涝—病害连续时序。
+- FTW 和 SAR 当前以独立数据接口接入，不把大型模型、遥感瓦片或 PyTorch 依赖打包进 Streamlit。
+- 遥感边界和淹没比例统一标记为 `remote_sensed`，不能替代现场水深、实际退水时间或田间病情。

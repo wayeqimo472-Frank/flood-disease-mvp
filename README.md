@@ -1,6 +1,6 @@
 # 洪涝次生灾害风险原型
 
-当前完成参数先验、最小风险计算核心和 Streamlit 五页原型。
+当前完成参数先验、最小风险计算核心、公开案例库和 Streamlit 五页原型。
 
 ## 当前文件
 
@@ -20,6 +20,10 @@
 - `data/field_observation_template_v0.4.csv`：空白田块观测模板。
 - `data/demo_scenarios_v0.4.csv`：明确标注为逻辑测试的合成情景。
 - `data/supplementary_source_assessment_v0.1.csv`：补充资料逐项可用性判断。
+- `data/public_evidence_catalog_v0.1.csv`：公开数据集来源、许可证、用途和限制。
+- `data/public_flood_case_maize_v0.1.csv`：真实淹水田与未淹对照的NDVI时序摘要。
+- `data/public_waterlogging_survival_maize_v0.1.csv`：80个玉米基因型的9天涝渍存活率。
+- `data/public_disease_progress_maize_v0.1.csv`：两季玉米病害时间进展模型参数。
 - `docs/v0.4_acceptance_freeze.md`：v0.4验收、哈希和冻结边界。
 - `docs/demo_scenarios_v0.4.md`：逻辑测试情景及预期结果。
 - `docs/field_data_request_packet_v0.4.md`：合作方数据请求说明。
@@ -51,6 +55,7 @@
 - 下载空白田块观测模板，上传CSV进行逐行校验和批量计算，并导出结果。
 - 五个页面通过侧边栏导航，当前评估状态始终可见；
 - CSV上传在当前浏览器会话中保留，可区分原始上传和计算合并结果。
+- “参数与科研依据”页接入3组可追溯公开数据，并展示尚无直接因果验证的证据边界。
 
 ## 当前限制
 
@@ -69,3 +74,4 @@
 - 温度或湿度缺失时，南方锈病环境适宜度显示“数据不足”；
 - 当前不输出病害导致的精确产量损失；
 - 所有结果都必须保留“文献先验/情景规则”标签。
+- 公开案例来自不同作物、地点、年份和试验尺度，不据此拟合跨试验因果系数。

@@ -27,7 +27,7 @@ st.sidebar.markdown(
     }
     </style>
     <div class="app-brand">🌽 洪涝次生灾害风险决策系统</div>
-    <div style="font-size: 0.78rem; opacity: 0.65;">v0.5 多页面原型</div>
+    <div style="font-size: 0.78rem; opacity: 0.65;">v0.6 公开证据原型</div>
     """,
     unsafe_allow_html=True,
 )

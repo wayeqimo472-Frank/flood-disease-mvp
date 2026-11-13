@@ -20,7 +20,7 @@ from ui_common import (
 
 st.title("参数与科研依据")
 render_assessment_status()
-st.caption(f"当前案例包：{CASE_NAME}")
+st.caption(f"当前案例：{CASE_NAME}")
 if CASE_CONFIG.get("validation_status"):
     st.caption(
         f"验证状态：{CASE_CONFIG['validation_status']}；"

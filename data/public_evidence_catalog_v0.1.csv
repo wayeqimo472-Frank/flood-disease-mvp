@@ -1,0 +1,7 @@
+dataset_id,title,crop,dataset_type,repository,doi,license,coverage,app_use,integration_status,evidence_level,limitations
+flood_case_maize_2021,Drone-Based Identification of Flood-Tolerant Maize via Multispectral Imaging,玉米,真实淹水田与未淹对照的无人机时序数据,Zenodo,10.5281/zenodo.14261169,CC0 1.0,美国密苏里州2020年未淹对照与2021年自然淹水田,展示洪涝前后NDVI变化并用于风险页外源案例卡,已导入摘要,遥感提取与公开试验数据,不能替代本地田块观测且没有病害终点
+waterlogging_survival_maize_9d,Genetic and Morphological Predictors of Waterlogging Tolerance and Yield in Maize,玉米,80个基因型9天涝渍存活率与千粒重试验数据,Zenodo,10.5281/zenodo.23651962,CC BY 4.0,印度试验材料与受控涝渍试验,展示基因型间涝渍存活差异并支持作物抗逆性先验,已导入个体记录,受控试验数据,不是田块级自然洪涝且没有病害观测
+disease_progress_maize,Temporal progress of maize diseases,玉米,玉米四种病害时间进展与气候关系,Figshare,10.6084/m9.figshare.14279220,CC BY 4.0,巴西两季五个商业杂交种田块,展示病害时间进展模型参数并支持病害阶段解释,已导入模型参数,田间试验模型参数,原始附件受下载防护限制；参数值已与论文Table 1核对；无洪涝处理且不能直接用于其他地区或品种
+overwatering_image_pepper,Chili Pepper BBWV2 and Overwatering Stress Leaf Image Dataset,辣椒,健康、过水胁迫与病毒感染三类叶片图像,Zenodo,10.5281/zenodo.17901489,CC BY 4.0,受控室内环境72株每组第六和第七周图像,可辅助演示生理性过水伤害与病害的区分,待接入图像模块,受控试验图像,物种不是玉米且不能直接作为玉米病害识别数据
+disease_image_maize,Corn maize leaf disease image collection,玉米,健康、普通锈病、尾孢叶斑病与北方叶枯病图像,Zenodo,10.5281/zenodo.12609449,CC BY 4.0,公开数据集中3190张图像,可用于症状识别演示,候选外部数据,公开试验图像,不能证明图像中的病害由洪涝引起
+waterlogging_recovery_peanut,Dataset for Asynchronous root and shoot recovery after waterlogging,花生,8种涝渍时长及排水后16天恢复与产量数据,Zenodo,10.5281/zenodo.23410365,CC BY 4.0,花生结荚期受控涝渍试验,可借用于解释恢复轨迹和干预窗口的一般思路,候选外部数据,受控试验数据,物种不是玉米且只能作为方法学参考

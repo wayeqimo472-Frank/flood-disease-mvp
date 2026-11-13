@@ -1,0 +1,7 @@
+metric_id,metric,value,unit,source_id,note
+flood_case_maize_2021,田面明水持续时间,24,小时,10.5281/zenodo.14261169,自然洪水事件
+flood_case_maize_2021,退水后土壤饱和持续时间,7,天,10.5281/zenodo.14261169,原文表述为至少一周
+flood_case_maize_2021,参试杂交种数量,410,个,10.5281/zenodo.14261169,同一批遗传材料用于受淹与对照环境
+flood_case_maize_2021,洪水前平均存活株数,48.22,株/小区,10.5281/zenodo.14261169,原文报告值
+flood_case_maize_2021,洪水后平均存活株数,14.96,株/小区,10.5281/zenodo.14261169,原文报告值
+flood_case_maize_2021,洪水后存活株数降幅,68.98,%,10.5281/zenodo.14261169,原文报告值

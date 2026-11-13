@@ -6,27 +6,12 @@ from ui_common import activate_case
 
 
 st.set_page_config(
-    page_title="洪涝次生灾害风险决策系统",
+    page_title="农田涝渍与作物病害风险决策支持系统",
     page_icon="🌽",
     layout="wide",
 )
 
 initialize_database()
-case_ids = available_case_ids()
-default_index = case_ids.index(DEFAULT_CASE_ID) if DEFAULT_CASE_ID in case_ids else 0
-if len(case_ids) > 1:
-    selected_case_id = st.sidebar.selectbox(
-        "案例包",
-        options=case_ids,
-        index=default_index,
-        format_func=lambda value: get_case_pack(value).name,
-        key="selected_case_id",
-    )
-else:
-    selected_case_id = case_ids[0] if case_ids else DEFAULT_CASE_ID
-activate_case(selected_case_id)
-case_pack = get_case_pack(selected_case_id)
-
 st.sidebar.markdown(
     """
     <style>
@@ -46,11 +31,26 @@ st.sidebar.markdown(
         margin-bottom: 0.25rem;
     }
     </style>
-    <div class="app-brand">🌽 洪涝次生灾害风险决策系统</div>
+    <div class="app-brand">🌽 农田涝渍与作物病害风险决策支持系统</div>
     """,
     unsafe_allow_html=True,
 )
-st.sidebar.caption(f"v0.7 · {case_pack.name} · 案例包 {case_pack.version}")
+st.sidebar.caption("多区域案例版 v0.7.1")
+
+case_ids = available_case_ids()
+default_index = case_ids.index(DEFAULT_CASE_ID) if DEFAULT_CASE_ID in case_ids else 0
+if len(case_ids) > 1:
+    selected_case_id = st.sidebar.selectbox(
+        "当前案例",
+        options=case_ids,
+        index=default_index,
+        format_func=lambda value: get_case_pack(value).name,
+        key="selected_case_id",
+    )
+else:
+    selected_case_id = case_ids[0] if case_ids else DEFAULT_CASE_ID
+activate_case(selected_case_id)
+case_pack = get_case_pack(selected_case_id)
 
 navigation = st.navigation(
     {

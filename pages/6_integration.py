@@ -39,7 +39,7 @@ PUBLIC_REGISTER_PATH = PROJECT_DIR / "data" / "public_dataset_register_v0.2.csv"
 
 st.title("数据拼接与公开案例")
 render_assessment_status()
-st.caption(f"当前案例包：{CASE_NAME}")
+st.caption(f"当前案例：{CASE_NAME}")
 st.info(
     "本页把 ICASA 字段标准、FTW 田块边界、SAR 洪水指标和公开观测案例"
     "接到同一套数据管理中。遥感推算与现场实测分开保存，不互相替代。"

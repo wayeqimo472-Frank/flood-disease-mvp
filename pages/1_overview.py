@@ -14,10 +14,10 @@ from ui_common import (
 
 
 st.title("项目总览")
-st.caption("洪涝暴露 → 作物抗逆性下降 → 病害风险 → 干预窗口 → 减损决策")
+st.caption("多区域案例 · 涝渍暴露 · 作物状态 · 病害证据 · 干预窗口")
 st.info(
-    "本系统是证据约束下的情景筛查与辅助决策原型，"
-    "不是病害概率预测器，也不输出精确产量损失。"
+    "系统依据已提交的涝渍暴露、作物状态和病害证据生成情景筛查结果，"
+    "并说明缺失数据带来的判断限制。"
 )
 render_assessment_status()
 
@@ -47,7 +47,7 @@ if has_current_state():
 else:
     st.caption("暂无记录：当前会话还没有提交过风险情景。")
 
-st.subheader("系统工作范围")
+st.subheader("主要功能")
 col_1, col_2, col_3, col_4 = st.columns(4, gap="large")
 with col_1:
     st.markdown("**风险情景筛查**")

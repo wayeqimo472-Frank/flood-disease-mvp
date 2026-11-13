@@ -1,11 +1,31 @@
 import streamlit as st
 
+from case_pack import DEFAULT_CASE_ID, available_case_ids, get_case_pack
+from storage import initialize_database
+from ui_common import activate_case
+
 
 st.set_page_config(
     page_title="洪涝次生灾害风险决策系统",
     page_icon="🌽",
     layout="wide",
 )
+
+initialize_database()
+case_ids = available_case_ids()
+default_index = case_ids.index(DEFAULT_CASE_ID) if DEFAULT_CASE_ID in case_ids else 0
+if len(case_ids) > 1:
+    selected_case_id = st.sidebar.selectbox(
+        "案例包",
+        options=case_ids,
+        index=default_index,
+        format_func=lambda value: get_case_pack(value).name,
+        key="selected_case_id",
+    )
+else:
+    selected_case_id = case_ids[0] if case_ids else DEFAULT_CASE_ID
+activate_case(selected_case_id)
+case_pack = get_case_pack(selected_case_id)
 
 st.sidebar.markdown(
     """
@@ -27,10 +47,10 @@ st.sidebar.markdown(
     }
     </style>
     <div class="app-brand">🌽 洪涝次生灾害风险决策系统</div>
-    <div style="font-size: 0.78rem; opacity: 0.65;">v0.6.1 公开证据数据库</div>
     """,
     unsafe_allow_html=True,
 )
+st.sidebar.caption(f"v0.7 · {case_pack.name} · 案例包 {case_pack.version}")
 
 navigation = st.navigation(
     {
@@ -61,6 +81,12 @@ navigation = st.navigation(
                 title="田块数据管理",
                 icon="📁",
                 url_path="field-data",
+            ),
+            st.Page(
+                "pages/6_integration.py",
+                title="数据拼接与公开案例",
+                icon="🛰",
+                url_path="integration",
             ),
         ],
         "科研依据": [

@@ -1,6 +1,9 @@
+import pandas as pd
 import streamlit as st
 
+from storage import list_assessment_runs
 from ui_common import (
+    CASE_CONFIG,
     DATA_COMPLETENESS_LABELS,
     ENVIRONMENT_METRIC_LABELS,
     current_source_label,
@@ -45,7 +48,7 @@ else:
     st.caption("暂无记录：当前会话还没有提交过风险情景。")
 
 st.subheader("系统工作范围")
-col_1, col_2, col_3 = st.columns(3, gap="large")
+col_1, col_2, col_3, col_4 = st.columns(4, gap="large")
 with col_1:
     st.markdown("**风险情景筛查**")
     st.write("录入涝渍暴露、病害证据和环境条件，生成当前筛查摘要。")
@@ -58,18 +61,27 @@ with col_3:
     st.markdown("**田块数据管理**")
     st.write("下载模板、校验并批量计算田块观测记录。")
     st.page_link("pages/4_field_data.py", label="管理田块数据", icon="📁")
+with col_4:
+    st.markdown("**数据拼接**")
+    st.write("查看公开案例、ICASA 映射、田块几何和 SAR 指标接口。")
+    st.page_link("pages/6_integration.py", label="查看拼接层", icon="🛰")
 
 st.subheader("当前数据边界")
-st.write(
-    "- 已接入公开真实淹水田—未淹对照时序，但该数据没有病害终点。"
-    "\n- 已接入涝渍存活和病害时间进展的先验数据，不能把它们拼成因果系数。"
-    "\n- 尚未获得本地区真实受淹田与未受淹对照田的配对观测。"
-    "\n- 温度和湿度缺失时，不推断环境适宜度。"
-    "\n- E14区域遥感分类需要独立像元数据，当前保持不可用。"
-    "\n- 所有预设值都是情景假设，不是田间实测。"
-)
-st.page_link(
-    "pages/5_evidence.py",
-    label="查看已接入的公开案例与来源",
-    icon="📚",
-)
+for limitation in CASE_CONFIG.get("overview_limits", []):
+    st.write(f"- {limitation}")
+
+recent_runs = list_assessment_runs(limit=5)
+if recent_runs:
+    st.subheader("本地计算历史")
+    st.dataframe(
+        pd.DataFrame(recent_runs).rename(
+            columns={
+                "run_hash": "记录哈希",
+                "case_id": "案例包",
+                "case_version": "版本",
+                "created_at": "计算时间",
+            }
+        ),
+        hide_index=True,
+        width="stretch",
+    )

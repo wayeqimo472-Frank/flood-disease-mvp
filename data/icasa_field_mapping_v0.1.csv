@@ -1,0 +1,25 @@
+local_field,local_meaning,icasa_variable_name,icasa_code_display,icasa_unit,mapping_strength,mapping_note,source_url,source_commit
+case_id,案例或数据集标识,experiment_id,EID,text,partial,案例通常包含多个试验，不一一等同 experiment_id,https://github.com/DSSAT/ICASA-Dictionary,2168f366b7c35ce6997c8fb0055dc259e9341ad3
+field_id,田块标识,experiment_id+plot_id,EID+PLTID,text,derived,需要把案例或试验标识与地块标识组合,https://github.com/DSSAT/ICASA-Dictionary,2168f366b7c35ce6997c8fb0055dc259e9341ad3
+plot_id,小区标识,plot_id,PLTID,text,exact,直接对应 ICASA 小区标识,https://github.com/DSSAT/ICASA-Dictionary,2168f366b7c35ce6997c8fb0055dc259e9341ad3
+site_name,试验点名称,site_name,SITE_NAME,text,exact,对应试验元数据站点名称,https://github.com/DSSAT/ICASA-Dictionary,2168f366b7c35ce6997c8fb0055dc259e9341ad3
+latitude,纬度,weather_sta_latitude,WST_LAT,decimal_degrees,derived,仅当坐标属于气象站时可直接映射,https://github.com/DSSAT/ICASA-Dictionary,2168f366b7c35ce6997c8fb0055dc259e9341ad3
+longitude,经度,weather_sta_longitude,WST_LONG,decimal_degrees,derived,仅当坐标属于气象站时可直接映射,https://github.com/DSSAT/ICASA-Dictionary,2168f366b7c35ce6997c8fb0055dc259e9341ad3
+country_code,国家代码,wsta_location_country,WST_LOC_1,text,derived,气象站一级行政区字段,https://github.com/DSSAT/ICASA-Dictionary,2168f366b7c35ce6997c8fb0055dc259e9341ad3
+admin_level_1,一级行政区,wsta_loc_2nd_level,WST_LOC_2,text,derived,气象站二级行政区字段,https://github.com/DSSAT/ICASA-Dictionary,2168f366b7c35ce6997c8fb0055dc259e9341ad3
+admin_level_2,二级行政区,wsta_loc_3rd_level,WST_LOC_3,text,derived,气象站三级行政区字段,https://github.com/DSSAT/ICASA-Dictionary,2168f366b7c35ce6997c8fb0055dc259e9341ad3
+observation_date,观测日期,weather_date,W_DATE,date,partial,气象观测可直用；病害观测需另建事件关联,https://github.com/DSSAT/ICASA-Dictionary,2168f366b7c35ce6997c8fb0055dc259e9341ad3
+temperature_c,日平均气温,temp_average_daily,TAVD,degree_C,exact,ICASA 日气象字段,https://github.com/DSSAT/ICASA-Dictionary,2168f366b7c35ce6997c8fb0055dc259e9341ad3
+humidity_pct,日平均相对湿度,realtive_humidity_avg,RHAVD,%,exact,保留 ICASA 原字典的 realtive 原拼写,https://github.com/DSSAT/ICASA-Dictionary,2168f366b7c35ce6997c8fb0055dc259e9341ad3
+wind_speed_ms,风速,wind_speed_daily,WIND,km/d,derived,写入前乘以 86.4 从 m/s 转为 km/d,https://github.com/DSSAT/ICASA-Dictionary,2168f366b7c35ce6997c8fb0055dc259e9341ad3
+rainfall_mm,降水量,precipitation,RAIN,mm,exact,ICASA 日气象降水字段,https://github.com/DSSAT/ICASA-Dictionary,2168f366b7c35ce6997c8fb0055dc259e9341ad3
+max_water_depth_cm,最大田面水深,floodwater_depth,FLDD,mm,derived,写入前乘以 10 从 cm 转为 mm,https://github.com/DSSAT/ICASA-Dictionary,2168f366b7c35ce6997c8fb0055dc259e9341ad3
+yield_kg_ha,玉米产量,harvest_yld_matur_dry_wt,HWAM,kg/ha,exact,ICASA 成熟收获干重产量,https://github.com/DSSAT/ICASA-Dictionary,2168f366b7c35ce6997c8fb0055dc259e9341ad3
+flood_days,连续田面明水天数,,,days,no_standard,ICASA当前没有通用明水持续时间变量,https://github.com/DSSAT/ICASA-Dictionary,2168f366b7c35ce6997c8fb0055dc259e9341ad3
+waterlog_days,土壤饱和或渍水天数,,,days,no_standard,ICASA当前没有通用渍水持续时间变量,https://github.com/DSSAT/ICASA-Dictionary,2168f366b7c35ce6997c8fb0055dc259e9341ad3
+drainage_delay_hours,退水或排水延迟,,,hours,no_standard,需要现场事件或遥感时序另行记录,https://github.com/DSSAT/ICASA-Dictionary,2168f366b7c35ce6997c8fb0055dc259e9341ad3
+crop_stage,玉米生育期,,,code,no_standard,ICASA提供生育期日期但无统一V/R阶段编码,https://github.com/DSSAT/ICASA-Dictionary,2168f366b7c35ce6997c8fb0055dc259e9341ad3
+disease_severity_pct,病害严重度,,,%,no_standard,需区分病原、组织部位和严重度尺度,https://github.com/DSSAT/ICASA-Dictionary,2168f366b7c35ce6997c8fb0055dc259e9341ad3
+diagnosis_status,诊断状态,,,code,no_standard,现有标准不能替代实验室或专家诊断记录,https://github.com/DSSAT/ICASA-Dictionary,2168f366b7c35ce6997c8fb0055dc259e9341ad3
+disease_pressure,周边病害压力,,,code,no_standard,需要菌源、邻近田块和监测范围定义,https://github.com/DSSAT/ICASA-Dictionary,2168f366b7c35ce6997c8fb0055dc259e9341ad3
+evidence_level,证据等级,experiment_rating,EXPER_RATING,text,partial,可用ICASA试验评级补充但不能等同本项目证据等级,https://github.com/DSSAT/ICASA-Dictionary,2168f366b7c35ce6997c8fb0055dc259e9341ad3

@@ -4,13 +4,10 @@ import csv
 import json
 from dataclasses import asdict, dataclass
 from functools import lru_cache
-from pathlib import Path
 from typing import Any
 
+from case_pack import DEFAULT_CASE_ID, CasePack, get_case_pack
 
-DATA_DIR = Path(__file__).resolve().parent / "data"
-PRIOR_PATH = DATA_DIR / "model_parameter_priors_v0.2.csv"
-RULES_PATH = DATA_DIR / "decision_rules_v0.3.csv"
 
 BAND_ORDER = ("low", "moderate", "high", "very_high")
 BAND_LABELS = {
@@ -34,10 +31,8 @@ ENVIRONMENT_TEXT = {
     "not_applicable": "已排除真菌病害",
     "insufficient_data": "数据不足，无法判断",
 }
-ALLOWED_STAGES = {"V3", "V6", "VT", "R3"}
 ALLOWED_SYMPTOMS = {"none", "sparse", "obvious"}
 ALLOWED_PRESSURE = {"low", "moderate", "high", "unknown"}
-ALLOWED_DISEASES = {"southern_rust", "stem_rot", "leaf_spot", "ear_rot"}
 ALLOWED_DIAGNOSIS = {
     "not_assessed",
     "suspected",
@@ -45,22 +40,6 @@ ALLOWED_DIAGNOSIS = {
     "confirmed_nonfungal",
 }
 ALLOWED_BASELINE = {"unknown", "none", "sporadic", "established"}
-OFFICIAL_CULTIVARS = {
-    "unknown",
-    "other",
-    "MY73",
-    "秋乐368",
-    "现代959",
-    "京科938",
-    "郑单958",
-    "泛玉298",
-    "棒博士767",
-    "伟科702",
-    "科腾918",
-    "鼎诺212",
-    "伟科812",
-    "浚单1618",
-}
 
 
 @dataclass(frozen=True)
@@ -79,11 +58,16 @@ class FieldScenario:
     temperature_c: float | None = None
     humidity_pct: float | None = None
     wind_speed_ms: float | None = None
+    case_id: str = DEFAULT_CASE_ID
 
     def __post_init__(self) -> None:
-        if self.crop_stage is not None and self.crop_stage not in ALLOWED_STAGES:
+        pack = get_case_pack(self.case_id)
+        allowed_stages = set(pack.config["stages"])
+        allowed_diseases = set(pack.config["diseases"])
+        allowed_cultivars = set(pack.config["cultivars"])
+        if self.crop_stage is not None and self.crop_stage not in allowed_stages:
             raise ValueError(f"unsupported crop_stage: {self.crop_stage}")
-        if self.target_disease is not None and self.target_disease not in ALLOWED_DISEASES:
+        if self.target_disease is not None and self.target_disease not in allowed_diseases:
             raise ValueError(f"unsupported target_disease: {self.target_disease}")
         if self.symptom_status is not None and self.symptom_status not in ALLOWED_SYMPTOMS:
             raise ValueError(f"unsupported symptom_status: {self.symptom_status}")
@@ -91,7 +75,7 @@ class FieldScenario:
             raise ValueError(f"unsupported diagnosis_status: {self.diagnosis_status}")
         if self.pre_flood_baseline not in ALLOWED_BASELINE:
             raise ValueError(f"unsupported pre_flood_baseline: {self.pre_flood_baseline}")
-        if self.cultivar_name not in OFFICIAL_CULTIVARS:
+        if self.cultivar_name not in allowed_cultivars:
             raise ValueError(f"unsupported cultivar_name: {self.cultivar_name}")
         if self.disease_pressure is not None and self.disease_pressure not in ALLOWED_PRESSURE:
             raise ValueError(f"unsupported disease_pressure: {self.disease_pressure}")
@@ -150,18 +134,34 @@ class Assessment:
     evidence_parameter_ids: tuple[str, ...]
     evidence_rule_ids: tuple[str, ...]
     limitations: tuple[str, ...]
+    case_id: str
+    region_code: str
+    crop_code: str
+    case_version: str
+    risk_model: str
 
 
-@lru_cache(maxsize=1)
-def load_priors() -> dict[str, dict[str, str]]:
-    with PRIOR_PATH.open(encoding="utf-8-sig", newline="") as file:
+@lru_cache(maxsize=None)
+def load_priors(case_id: str = DEFAULT_CASE_ID) -> dict[str, dict[str, str]]:
+    with get_case_pack(case_id).data_file("priors").open(
+        encoding="utf-8-sig", newline=""
+    ) as file:
         return {row["parameter_id"]: row for row in csv.DictReader(file)}
 
 
-@lru_cache(maxsize=1)
-def load_rules() -> dict[str, dict[str, str]]:
-    with RULES_PATH.open(encoding="utf-8-sig", newline="") as file:
+@lru_cache(maxsize=None)
+def load_rules(case_id: str = DEFAULT_CASE_ID) -> dict[str, dict[str, str]]:
+    with get_case_pack(case_id).data_file("rules").open(
+        encoding="utf-8-sig", newline=""
+    ) as file:
         return {row["rule_id"]: row for row in csv.DictReader(file)}
+
+
+def load_gaps(case_id: str = DEFAULT_CASE_ID) -> dict[str, dict[str, str]]:
+    with get_case_pack(case_id).data_file("gaps").open(
+        encoding="utf-8-sig", newline=""
+    ) as file:
+        return {row["gap_id"]: row for row in csv.DictReader(file)}
 
 
 def _record_use(
@@ -214,18 +214,15 @@ def _stage_flood_band(
     flood_days: float | None,
     priors: dict[str, dict[str, str]],
     uses: list[ParameterUse],
+    pack: CasePack,
 ) -> str:
     if stage is None or flood_days is None:
         return "unknown"
     if flood_days == 0:
         return "low"
 
-    ten_day_parameter = {
-        "V3": "P014",
-        "V6": "P015",
-        "VT": "P017",
-        "R3": "P018",
-    }[stage]
+    stage_parameters = pack.config["stage_parameters"][stage]
+    ten_day_parameter = stage_parameters["ten_day"]
     ten_day = _time_value(
         priors,
         ten_day_parameter,
@@ -233,12 +230,13 @@ def _stage_flood_band(
         detail=f"{stage}达到10天结果锚点的判断",
     )
 
-    if stage == "V6":
+    acceleration_parameter = stage_parameters.get("acceleration")
+    if acceleration_parameter:
         acceleration_day = _time_value(
             priors,
-            "P016",
+            acceleration_parameter,
             uses,
-            detail="V6超过6天后的损失加速判断",
+            detail=f"{stage}超过加速锚点后的损失判断",
         )
         if flood_days >= ten_day:
             return "very_high"
@@ -251,10 +249,14 @@ def _stage_flood_band(
     return "moderate"
 
 
-def _waterlogging_band(days: float | None, rules: dict[str, dict[str, str]]) -> str:
+def _waterlogging_band(
+    days: float | None,
+    rules: dict[str, dict[str, str]],
+    rule_ids: dict[str, str],
+) -> str:
     if days is None:
         return "unknown"
-    ten_day = _rule_time(rules, "R002")
+    ten_day = _rule_time(rules, rule_ids["ten_day_rule"])
     if days == 0:
         return "low"
     if days < ten_day:
@@ -267,6 +269,7 @@ def _surface_water_status(
     days: float | None,
     priors: dict[str, dict[str, str]],
     uses: list[ParameterUse],
+    pack: CasePack,
 ) -> str:
     if days is None:
         return "田面明水天数缺失，未按0天处理"
@@ -274,24 +277,27 @@ def _surface_water_status(
         return f"田面明水{days:g}天；生育期缺失，无法映射阶段证据"
     if days == 0:
         return "无田面明水输入"
-    if stage == "R3" and days < _time_value(
+    stage_parameters = pack.config["stage_parameters"][stage]
+    ten_day_parameter = stage_parameters["ten_day"]
+    short_duration_parameter = stage_parameters.get("short_duration")
+    if short_duration_parameter is None and days < _time_value(
         priors,
-        "P018",
+        ten_day_parameter,
         uses,
-        detail="R3不足10天的状态判断",
+        detail=f"{stage}不足10天的状态判断",
     ):
-        return f"田面明水{days:g}天；R3不足10天暂无定量锚点，暂不分级"
-    if stage in {"V3", "V6", "VT"}:
+        return f"田面明水{days:g}天；{stage}不足10天暂无定量锚点，暂不分级"
+    if short_duration_parameter:
         duration_boundary = _time_value(
             priors,
-            "P013",
+            short_duration_parameter,
             uses,
             detail="不超过4天的状态文字分支",
         )
-        loss_upper = float(priors["P013"]["value_high"])
+        loss_upper = float(priors[short_duration_parameter]["value_high"])
         _record_use(
             uses,
-            "P013",
+            short_duration_parameter,
             "解释性证据",
             "value_high",
             "减产上界仅用于解释，不进入风险分数",
@@ -301,45 +307,68 @@ def _surface_water_status(
                 f"田面明水{days:g}天；E04仅给出不超过"
                 f"{duration_boundary:g}天时减产上界<{loss_upper:g}%，暂不细分"
             )
-    if stage == "V6":
+    acceleration_parameter = stage_parameters.get("acceleration")
+    if acceleration_parameter:
         acceleration_day = _time_value(
             priors,
-            "P016",
+            acceleration_parameter,
             uses,
-            detail="V6超过6天后的状态说明",
+            detail=f"{stage}超过加速锚点后的状态说明",
         )
         if acceleration_day < days < _time_value(
             priors,
-            "P015",
+            ten_day_parameter,
             uses,
-            detail="V6 10天致死锚点的状态判断",
+            detail=f"{stage}十天结果锚点的状态判断",
         ):
-            return f"田面明水{days:g}天；已超过E04的6天损失加速锚点"
+            return (
+                f"田面明水{days:g}天；"
+                f"已超过E04的{acceleration_day:g}天损失加速锚点"
+            )
     return f"田面明水{days:g}天；存在淹水胁迫，按现有证据仅作粗粒度关注分级"
 
 
 def _waterlogging_status(
     days: float | None,
     rules: dict[str, dict[str, str]],
+    rule_ids: dict[str, str],
 ) -> str:
     if days is None:
         return "土壤饱和/渍水天数缺失，未按0天处理"
-    five_day = _rule_time(rules, "R001")
-    ten_day = _rule_time(rules, "R002")
+    five_day_rule = rule_ids["five_day_rule"]
+    ten_day_rule = rule_ids["ten_day_rule"]
+    five_day = _rule_time(rules, five_day_rule)
+    ten_day = _rule_time(rules, ten_day_rule)
     if days == 0:
         return "无土壤饱和/渍水输入"
     if days < five_day:
         return f"渍水{days:g}天；存在渍水胁迫，但未达到5天最低定量锚点，暂不分级"
     if days < ten_day:
-        loss_low = float(rules["R001"]["value_low"])
-        loss_high = float(rules["R001"]["value_high"])
+        loss_low = float(rules[five_day_rule]["value_low"])
+        loss_high = float(rules[five_day_rule]["value_high"])
         return f"渍水{days:g}天；达到5天产量损失锚点（{loss_low:g}%—{loss_high:g}%）"
-    multiplier_low = float(rules["R002"]["value_low"])
-    multiplier_high = float(rules["R002"]["value_high"])
+    multiplier_low = float(rules[ten_day_rule]["value_low"])
+    multiplier_high = float(rules[ten_day_rule]["value_high"])
     return (
         f"渍水{days:g}天；达到强胁迫比较锚点"
         f"（10天损失为5天的{multiplier_low:g}—{multiplier_high:g}倍）"
     )
+
+
+def _generic_surface_water_status(days: float | None) -> str:
+    if days is None:
+        return "田面明水天数缺失，未按0天处理"
+    if days == 0:
+        return "无田面明水输入"
+    return f"田面明水{days:g}天；当前案例没有本地定量分级，只保留观测值。"
+
+
+def _generic_waterlogging_status(days: float | None) -> str:
+    if days is None:
+        return "土壤饱和/渍水天数缺失，未按0天处理"
+    if days == 0:
+        return "无土壤饱和/渍水输入"
+    return f"渍水{days:g}天；当前案例没有本地定量分级，只保留观测值。"
 
 
 def _field_evidence_status(scenario: FieldScenario) -> str:
@@ -363,7 +392,12 @@ def _known_and_unknown_evidence(
     surface_water_status: str,
     waterlogging_status: str,
     suitability: str,
+    pack: CasePack,
 ) -> tuple[tuple[str, ...], tuple[str, ...]]:
+    environment_disease_code = pack.config["environment_disease_code"]
+    environment_disease_label = pack.config["diseases"][
+        environment_disease_code
+    ]["short_label"]
     known = [
         surface_water_status,
         waterlogging_status,
@@ -374,11 +408,13 @@ def _known_and_unknown_evidence(
             f"从淹水开始到排水的用户输入为{scenario.drainage_delay_hours:g}小时"
         )
     if suitability == "not_applicable":
-        known.append("已排除真菌性病害，不评价南方锈病环境适宜度")
+        known.append(f"已排除真菌性病害，不评价{environment_disease_label}环境适宜度")
     elif suitability == "insufficient_data":
-        known.append("温度或湿度缺失，未判断南方锈病环境适宜度")
-    elif scenario.target_disease == "southern_rust":
-        known.append(f"南方锈病环境适宜度：{ENVIRONMENT_TEXT[suitability]}")
+        known.append(f"温度或湿度缺失，未判断{environment_disease_label}环境适宜度")
+    elif scenario.target_disease == environment_disease_code:
+        known.append(
+            f"{environment_disease_label}环境适宜度：{ENVIRONMENT_TEXT[suitability]}"
+        )
     else:
         known.append("所选病害尚未建立定量环境适宜度模型")
     if scenario.pre_flood_baseline != "unknown":
@@ -392,7 +428,7 @@ def _known_and_unknown_evidence(
     ]
     if scenario.pre_flood_baseline == "unknown":
         unknown.append("缺少洪涝前田块病情基线，无法判断本次涝后病情增量")
-    if scenario.target_disease != "southern_rust":
+    if scenario.target_disease != environment_disease_code:
         unknown.append("所选病种没有本地定量环境模型，不能输出数值病害风险")
     if scenario.symptom_status != "none" and scenario.diagnosis_status not in {
         "confirmed_fungal",
@@ -411,14 +447,15 @@ def _rust_environment_suitability(
     temperature_c: float | None,
     humidity_pct: float | None,
     rules: dict[str, dict[str, str]],
+    rule_ids: dict[str, str],
 ) -> str:
     if temperature_c is None or humidity_pct is None:
         return "insufficient_data"
-    temp_low = float(rules["R006"]["value_low"])
-    temp_high = float(rules["R006"]["value_high"])
-    optimal_low = float(rules["R007"]["value_low"])
-    optimal_high = float(rules["R007"]["value_high"])
-    humidity_threshold = float(rules["R008"]["value_low"])
+    temp_low = float(rules[rule_ids["temperature_range"]]["value_low"])
+    temp_high = float(rules[rule_ids["temperature_range"]]["value_high"])
+    optimal_low = float(rules[rule_ids["optimal_temperature"]]["value_low"])
+    optimal_high = float(rules[rule_ids["optimal_temperature"]]["value_high"])
+    humidity_threshold = float(rules[rule_ids["humidity_threshold"]]["value_low"])
 
     in_possible_range = temp_low <= temperature_c <= temp_high
     humid_enough = humidity_pct >= humidity_threshold
@@ -431,7 +468,11 @@ def _rust_environment_suitability(
     return "unfavorable"
 
 
-def _pressure_points(scenario: FieldScenario, suitability: str) -> int:
+def _pressure_points(
+    scenario: FieldScenario,
+    suitability: str,
+    pack: CasePack,
+) -> int:
     if scenario.diagnosis_status == "confirmed_nonfungal":
         return 0
 
@@ -441,32 +482,28 @@ def _pressure_points(scenario: FieldScenario, suitability: str) -> int:
     points += 1 if scenario.pre_flood_baseline == "sporadic" else 0
     points += scenario.symptom_status == "sparse"
     points += 2 if scenario.symptom_status == "obvious" else 0
-    if scenario.target_disease == "southern_rust":
+    if scenario.target_disease == pack.config["environment_disease_code"]:
         points += 2 if suitability == "optimal" else 0
         points += 1 if suitability == "favorable" else 0
     return points
 
 
-def _stage_disease_note(scenario: FieldScenario) -> str:
+def _stage_disease_note(scenario: FieldScenario, pack: CasePack) -> str:
     if scenario.diagnosis_status == "confirmed_nonfungal":
         return "专业诊断已排除真菌性病害，当前不按目标真菌病路径解释。"
 
     notes: list[str] = []
-    if scenario.target_disease == "ear_rot" and scenario.crop_stage != "R3":
-        notes.append("穗腐病重点在灌浆成熟期，当前生育期与该病害主要窗口不一致。")
-    if scenario.target_disease == "stem_rot" and scenario.crop_stage in {"V3", "V6"}:
-        notes.append("茎基腐病多在涝后中后期显症，当前只能做监测与诊断准备。")
-    if scenario.target_disease == "southern_rust" and scenario.crop_stage in {"V3", "V6"}:
-        notes.append("南方锈病参数主要来自抽雄至灌浆期，早期阶段结论需更保守解释。")
-    if scenario.cultivar_name == "郑单958":
-        notes.append(
-            "郑单958有公开耐涝对比证据，但这不等于其他年份、全部生育期或病害抗性都有定量参数；"
-            "系统不据此调整病害风险。"
-        )
+    disease_config = pack.config["diseases"].get(scenario.target_disease or "")
+    if disease_config:
+        conflict_stages = set(disease_config.get("conflict_stages", ()))
+        if scenario.crop_stage in conflict_stages and disease_config.get("stage_note"):
+            notes.append(disease_config["stage_note"])
+
+    cultivar_config = pack.config["cultivars"][scenario.cultivar_name]
+    if cultivar_config.get("note"):
+        notes.append(cultivar_config["note"])
     elif scenario.cultivar_name not in {"unknown", "other"}:
         notes.append("品种身份已记录，但该主导品种缺少公开耐涝分级，当前不据此调整风险。")
-    else:
-        notes.append("品种身份未知或为其他品种，当前保留未知状态，不进行品种风险调整。")
     if scenario.pre_flood_baseline == "unknown":
         notes.append("洪涝前病情基线未知，区域通报不能替代田块基线。")
     if not notes:
@@ -474,7 +511,11 @@ def _stage_disease_note(scenario: FieldScenario) -> str:
     return " ".join(notes)
 
 
-def _drainage_decision(scenario: FieldScenario, rules: dict[str, dict[str, str]]) -> WindowDecision:
+def _drainage_decision(
+    scenario: FieldScenario,
+    rules: dict[str, dict[str, str]],
+    rule_ids: dict[str, str],
+) -> WindowDecision:
     if scenario.standing_water is True:
         return WindowDecision(
             "排水窗口",
@@ -505,8 +546,9 @@ def _drainage_decision(scenario: FieldScenario, rules: dict[str, dict[str, str]]
             "明水已退但土壤仍饱和，尽快开沟降湿、中耕散墒，不能把无明水当成无胁迫。",
             "C004；D001",
         )
-    critical_low = rules["R005"]["value_low"]
-    critical_high = rules["R005"]["value_high"]
+    critical_rule = rule_ids["drainage_critical"]
+    critical_low = rules[critical_rule]["value_low"]
+    critical_high = rules[critical_rule]["value_high"]
     if scenario.drainage_delay_hours is None:
         return WindowDecision(
             "排水窗口",
@@ -534,12 +576,13 @@ def _drainage_decision(scenario: FieldScenario, rules: dict[str, dict[str, str]]
 def _scouting_decision(
     scenario: FieldScenario,
     rules: dict[str, dict[str, str]],
+    rule_ids: dict[str, str],
 ) -> WindowDecision:
-    first = _rule_time(rules, "R010")
-    second = _rule_time(rules, "R011")
-    third = _rule_time(rules, "R012")
-    routine = _rule_time(rules, "R013")
-    typhoon = _rule_time(rules, "R014")
+    first = _rule_time(rules, rule_ids["scouting_first"])
+    second = _rule_time(rules, rule_ids["scouting_second"])
+    third = _rule_time(rules, rule_ids["scouting_third"])
+    routine = _rule_time(rules, rule_ids["scouting_routine"])
+    typhoon = _rule_time(rules, rule_ids["scouting_storm"])
     plan = (
         f"排水后{first:g}/{second:g}/{third:g}天巡查；常规每{routine:g}天，"
         f"台风或强降雨后每{typhoon:g}天。"
@@ -593,6 +636,8 @@ def _treatment_decision(
     rules: dict[str, dict[str, str]],
     suitability: str,
     pressure_points: int,
+    pack: CasePack,
+    rule_ids: dict[str, str],
 ) -> WindowDecision:
     if scenario.diagnosis_status == "confirmed_nonfungal":
         return WindowDecision(
@@ -601,41 +646,54 @@ def _treatment_decision(
             "已排除真菌性病害，不得用本页结果指导杀菌剂选择。",
             "E004/E8",
         )
-    max_wind = float(rules["R016"]["value_central"])
-    max_temp = float(rules["R017"]["value_central"])
-    recheck_low = rules["R015"]["value_low"]
-    recheck_high = rules["R015"]["value_high"]
+    disease_config = pack.config["diseases"].get(scenario.target_disease or "")
+    if disease_config is None:
+        return WindowDecision(
+            "病害防治窗口",
+            "data_insufficient",
+            "目标病害缺失，无法判断防治路径。",
+            "数据完整性检查",
+        )
+    policy = disease_config["treatment_policy"]
 
-    if scenario.target_disease == "stem_rot":
+    if policy == "diagnosis_only":
         return WindowDecision(
             "病害防治窗口",
             "diagnosis_only",
-            "茎基腐病先做监测、取样和病原诊断；当前不给出自动药剂方案。",
-            "A2纳入建议；E010安全边界",
+            disease_config["treatment_action"],
+            disease_config["treatment_evidence"],
         )
-    if scenario.target_disease == "ear_rot":
+    if policy == "harvest_monitoring":
         return WindowDecision(
             "病害防治窗口",
             "harvest_monitoring",
-            "穗腐病以灌浆成熟期巡查、降湿和收获管理为主，不由风险分数自动触发用药。",
-            "A2/D3/D4",
+            disease_config["treatment_action"],
+            disease_config["treatment_evidence"],
         )
-    if scenario.target_disease == "leaf_spot":
+    if policy == "consult_only":
         if scenario.diagnosis_status == "confirmed_fungal":
             return WindowDecision(
                 "病害防治窗口",
                 "consult_only",
-                "已确认真菌性叶斑类病害，但当前没有河南灾后定量参数；药剂和剂量必须以诊断结果、登记标签和当地植保意见为准。",
-                "A2/D3/E010",
+                disease_config["confirmed_action"],
+                disease_config["confirmed_evidence"],
             )
         if scenario.symptom_status == "none":
-            return WindowDecision("病害防治窗口", "monitor", "继续监测，不触发药剂决策。", "A2/D3")
+            return WindowDecision(
+                "病害防治窗口",
+                "monitor",
+                disease_config["monitor_action"],
+                disease_config["monitor_evidence"],
+            )
         return WindowDecision(
             "病害防治窗口",
             "pending_diagnosis",
-            "叶斑类病害需先区分小斑、弯孢、大斑及其他原因，完成诊断后再咨询当地植保部门。",
-            "A2/D3/E008",
+            disease_config["pending_action"],
+            disease_config["pending_evidence"],
         )
+    if policy != "fungal_open":
+        raise ValueError(f"不支持的病害决策策略：{policy}")
+
     if scenario.diagnosis_status != "confirmed_fungal":
         if scenario.symptom_status is None:
             return WindowDecision(
@@ -645,19 +703,28 @@ def _treatment_decision(
                 "数据完整性检查；E008",
             )
         if scenario.symptom_status == "none":
-            if scenario.target_disease == "southern_rust" and suitability in {"optimal", "favorable"} and pressure_points >= 2:
+            if (
+                scenario.target_disease == pack.config["environment_disease_code"]
+                and suitability in {"optimal", "favorable"}
+                and pressure_points >= 2
+            ):
                 return WindowDecision(
                     "病害防治窗口",
                     "prepare_early",
-                    "尚未显症但环境适宜，提前准备巡查和当地植保咨询；见零星病叶后再诊断和决策。",
-                    "E02/D004/D005",
+                    disease_config["prepare_early_action"],
+                    disease_config["prepare_early_evidence"],
                 )
-            return WindowDecision("病害防治窗口", "monitor", "继续监测，不触发药剂决策。", "E009")
+            return WindowDecision(
+                "病害防治窗口",
+                "monitor",
+                disease_config["monitor_action"],
+                disease_config["monitor_evidence"],
+            )
         return WindowDecision(
             "病害防治窗口",
             "pending_diagnosis",
-            "已见疑似症状但尚未确诊，先完成诊断，不能直接推荐杀菌剂。",
-            "E008；E4安全合规",
+            disease_config["pending_action"],
+            disease_config["pending_evidence"],
         )
 
     if scenario.standing_water is True:
@@ -674,6 +741,10 @@ def _treatment_decision(
             "当前田面明水状态未知，不能确认是否具备安全作业条件。",
             "数据完整性检查；E004",
         )
+    max_wind = float(rules[rule_ids["application_wind"]]["value_central"])
+    max_temp = float(rules[rule_ids["application_temperature"]]["value_central"])
+    recheck_low = rules[rule_ids["treatment_recheck"]]["value_low"]
+    recheck_high = rules[rule_ids["treatment_recheck"]]["value_high"]
     if scenario.wind_speed_ms is None or scenario.temperature_c is None:
         return WindowDecision(
             "病害防治窗口",
@@ -689,27 +760,23 @@ def _treatment_decision(
             "E012",
         )
 
-    if scenario.target_disease == "southern_rust":
-        return WindowDecision(
-            "病害防治窗口",
-            "open",
-            f"已确认真菌性病害且作业条件允许；按登记标签和当地植保意见处置，"
-            f"{recheck_low}—{recheck_high}天后复查，不自动开具药剂和剂量。",
-            "E02/E011；E010不构成处方",
-        )
     return WindowDecision(
         "病害防治窗口",
-        "consult_only",
-        "当前病种缺少足够的本地定量证据，只能依据诊断结果和当地植保意见决策。",
-        "A2/D3",
+        "open",
+        f"{disease_config['open_action_prefix']}"
+        f"{recheck_low}—{recheck_high}{disease_config['open_action_suffix']}",
+        disease_config["open_evidence"],
     )
 
 
-def _data_completeness(scenario: FieldScenario) -> tuple[str, tuple[str, ...]]:
+def _data_completeness(
+    scenario: FieldScenario,
+    pack: CasePack,
+) -> tuple[str, tuple[str, ...]]:
     core_missing = [
         label
         for value, label in (
-            (scenario.crop_stage, "玉米生育期"),
+            (scenario.crop_stage, f"{pack.crop_name}生育期"),
             (scenario.flood_days, "连续田面明水天数"),
             (scenario.waterlog_days, "土壤饱和/渍水天数"),
         )
@@ -745,68 +812,130 @@ def _display_number(value: float | None) -> str:
 
 
 def assess(scenario: FieldScenario) -> Assessment:
-    priors = load_priors()
-    rules = load_rules()
+    pack = get_case_pack(scenario.case_id)
+    priors = load_priors(scenario.case_id)
+    rules = load_rules(scenario.case_id)
     parameter_uses: list[ParameterUse] = []
+    waterlogging_rule_ids = pack.config["waterlogging_parameters"]
+    environment_rule_ids = pack.config["environment_rules"]
+    rule_ids = pack.config["rule_parameters"]
+    environment_disease_code = pack.config["environment_disease_code"]
+    environment_disease_label = pack.config["diseases"][
+        environment_disease_code
+    ]["short_label"]
 
-    surface_band = _stage_flood_band(
-        scenario.crop_stage,
-        scenario.flood_days,
-        priors,
-        parameter_uses,
-    )
-    waterlog_band = _waterlogging_band(scenario.waterlog_days, rules)
-    surface_water_status = _surface_water_status(
-        scenario.crop_stage,
-        scenario.flood_days,
-        priors,
-        parameter_uses,
-    )
-    waterlogging_status = _waterlogging_status(scenario.waterlog_days, rules)
+    risk_model = pack.config.get("risk_model", "quantitative_stage_rules")
+    if risk_model == "monitoring_only":
+        surface_band = "not_modeled"
+        waterlog_band = "not_modeled"
+        surface_water_status = _generic_surface_water_status(scenario.flood_days)
+        waterlogging_status = _generic_waterlogging_status(scenario.waterlog_days)
+    else:
+        surface_band = _stage_flood_band(
+            scenario.crop_stage,
+            scenario.flood_days,
+            priors,
+            parameter_uses,
+            pack,
+        )
+        waterlog_band = _waterlogging_band(
+            scenario.waterlog_days,
+            rules,
+            waterlogging_rule_ids,
+        )
+        surface_water_status = _surface_water_status(
+            scenario.crop_stage,
+            scenario.flood_days,
+            priors,
+            parameter_uses,
+            pack,
+        )
+        waterlogging_status = _waterlogging_status(
+            scenario.waterlog_days,
+            rules,
+            waterlogging_rule_ids,
+        )
     field_evidence_status = _field_evidence_status(scenario)
     core_exposure_complete = surface_band != "unknown" and waterlog_band != "unknown"
     base_band = (
-        _band_max(surface_band, waterlog_band)
+        "not_modeled"
+        if risk_model == "monitoring_only"
+        else _band_max(surface_band, waterlog_band)
         if core_exposure_complete
         else "unknown"
     )
     # E14 describes independent regional remote-sensing pixels, not field water.
     flood_class = "not_available"
+    target_disease_config = pack.config["diseases"].get(
+        scenario.target_disease or "",
+        {},
+    )
     if scenario.diagnosis_status == "confirmed_nonfungal":
         suitability = "not_applicable"
-    elif scenario.target_disease == "southern_rust":
+    elif (
+        scenario.target_disease == environment_disease_code
+        and target_disease_config.get("environment_model")
+        == "temperature_humidity"
+    ):
         suitability = _rust_environment_suitability(
-            scenario.temperature_c, scenario.humidity_pct, rules
+            scenario.temperature_c,
+            scenario.humidity_pct,
+            rules,
+            environment_rule_ids,
         )
     else:
         suitability = "not_modeled"
-    pressure_points = _pressure_points(scenario, suitability)
+    pressure_points = _pressure_points(scenario, suitability, pack)
     high_band = (
         _raise_band(base_band)
-        if core_exposure_complete and pressure_points >= 2
+        if risk_model != "monitoring_only"
+        and core_exposure_complete
+        and pressure_points >= 2
         else base_band
     )
-    data_completeness, missing_inputs = _data_completeness(scenario)
+    data_completeness, missing_inputs = _data_completeness(scenario, pack)
     known_evidence, unknown_evidence = _known_and_unknown_evidence(
-        scenario, surface_water_status, waterlogging_status, suitability
+        scenario,
+        surface_water_status,
+        waterlogging_status,
+        suitability,
+        pack,
     )
 
     windows = (
-        _drainage_decision(scenario, rules),
-        _scouting_decision(scenario, rules),
+        _drainage_decision(scenario, rules, rule_ids),
+        _scouting_decision(scenario, rules, rule_ids),
         _diagnosis_decision(scenario),
-        _treatment_decision(scenario, rules, suitability, pressure_points),
+        _treatment_decision(
+            scenario,
+            rules,
+            suitability,
+            pressure_points,
+            pack,
+            rule_ids,
+        ),
     )
+    if risk_model == "monitoring_only" and pack.config.get("monitoring_evidence_label"):
+        monitoring_evidence = pack.config["monitoring_evidence_label"]
+        windows = tuple(
+            WindowDecision(
+                window=item.window,
+                status=item.status,
+                action=item.action,
+                evidence=monitoring_evidence,
+            )
+            for item in windows
+        )
     drainage_window = windows[0]
     treatment_window = windows[3]
     monitoring_plan = windows[1].action
 
     environment_rationale = (
-        "已排除真菌性病害，不计算南方锈病环境适宜度"
+        f"已排除真菌性病害，不计算{environment_disease_label}环境适宜度"
         if suitability == "not_applicable"
-        else "温度或湿度缺失，未判断南方锈病环境适宜度"
+        else f"温度或湿度缺失，未判断{environment_disease_label}环境适宜度"
         if suitability == "insufficient_data"
-        else f"南方锈病环境适宜度为{ENVIRONMENT_TEXT[suitability]}"
+        else f"{environment_disease_label}环境适宜度为{ENVIRONMENT_TEXT[suitability]}"
     )
     rationale = [
         (
@@ -819,48 +948,34 @@ def assess(scenario: FieldScenario) -> Assessment:
         environment_rationale,
         f"洪涝前病情基线为{BASELINE_TEXT[scenario.pre_flood_baseline]}",
     ]
-    if scenario.target_disease != "southern_rust":
-        rationale.append("非南方锈病只提供监测、诊断或管理提示，不输出数值病害风险。")
+    if scenario.target_disease != environment_disease_code:
+        rationale.append(
+            f"非{environment_disease_label}只提供监测、诊断或管理提示，"
+            "不输出数值病害风险。"
+        )
 
-    limitations = [
-        "风险区间是证据约束下的筛查分类，不是病害发生概率或精确产量损失。",
-        "处置优先级高表示需要优先排水、巡查和诊断，不等于田间已经发病或已经减产。",
-        "E02确认早晚期施药存在差异，但公开摘要未给出精确的早期和晚期天数。",
-        "E14的3/5/7天是区域遥感分级，不能替代田块实测的退水日期与水深。",
-        "E20不能提供可靠的严重度—产量斜率，因此不输出病害驱动的精确减产率。",
-        "所有施药建议在诊断、天气、标签和当地植保意见复核前都不得执行。",
-        "LWD、田块退水日和田块级洪涝前基线仍缺；主导品种耐涝性和排涝成本只有部分公开证据。",
-    ]
-    evidence_rule_ids = [
-        "R001",
-        "R002",
-        "R005",
-        "R010",
-        "R011",
-        "R012",
-        "R013",
-        "R014",
-        "R016",
-        "R017",
-        "R018",
-        "R019",
-    ]
+    limitations = list(pack.config["limitations"])
+    evidence_rule_ids = list(pack.config["base_evidence_rule_ids"])
     if (
-        scenario.target_disease == "southern_rust"
+        scenario.target_disease == environment_disease_code
+        and target_disease_config.get("environment_model")
+        == "temperature_humidity"
         and scenario.diagnosis_status != "confirmed_nonfungal"
         and suitability != "insufficient_data"
     ):
-        evidence_rule_ids.extend(("R006", "R007", "R008"))
+        evidence_rule_ids.extend(environment_rule_ids.values())
     if (
-        scenario.target_disease == "southern_rust"
+        scenario.target_disease == environment_disease_code
         and scenario.diagnosis_status == "confirmed_fungal"
     ):
-        evidence_rule_ids.append("R015")
+        evidence_rule_ids.append(rule_ids["treatment_recheck"])
     evidence_parameter_ids = tuple(
         dict.fromkeys(parameter_use.parameter_id for parameter_use in parameter_uses)
     )
     risk_label = (
-        "数据不足"
+        pack.config.get("monitoring_risk_label", "仅监测（未定量校准）")
+        if risk_model == "monitoring_only"
+        else "数据不足"
         if base_band == "unknown"
         else (
             BAND_LABELS[base_band]
@@ -886,13 +1001,18 @@ def assess(scenario: FieldScenario) -> Assessment:
         disease_window=f"{treatment_window.status}: {treatment_window.action}",
         disease_window_precise_days="unknown",
         monitoring_plan=monitoring_plan,
-        stage_disease_note=_stage_disease_note(scenario),
+        stage_disease_note=_stage_disease_note(scenario, pack),
         windows=windows,
         rationale=tuple(rationale),
         parameter_uses=tuple(parameter_uses),
         evidence_parameter_ids=evidence_parameter_ids,
         evidence_rule_ids=tuple(evidence_rule_ids),
         limitations=tuple(limitations),
+        case_id=pack.case_id,
+        region_code=pack.region_code,
+        crop_code=pack.crop_code,
+        case_version=pack.version,
+        risk_model=risk_model,
     )
 
 

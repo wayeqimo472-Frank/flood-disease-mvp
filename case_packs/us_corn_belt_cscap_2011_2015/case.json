@@ -1,0 +1,251 @@
+{
+  "case_id": "us_corn_belt_cscap_2011_2015",
+  "name": "美国玉米带 Sustainable Corn CAP 2011–2015",
+  "version": "0.1.0",
+  "season": "2011-2015",
+  "country_code": "US",
+  "region_code": "US-CORN-BELT",
+  "region_name": "美国中西部玉米带",
+  "crop_code": "maize",
+  "crop_name": "玉米",
+  "currency_code": "USD",
+  "description": "多州公开试验数据案例。用于案例包迁移和监测展示，不用于本地定量风险校准。",
+  "evidence_caption": "该案例只展示外部观测、监测流程和可用规则；不复制河南定量参数，不生成本地风险分级。",
+  "overview_limits": [
+    "美国案例只提供外部观测和监测框架，不含同一田块的洪涝—病害连续时序。",
+    "病害数值记录主要为穗腐和茎腐，不能代表全部玉米病害。",
+    "水表、病害和产量数据并非来自同一组田块。",
+    "该案例不输出定量风险、病害概率或精确产量损失。"
+  ],
+  "risk_model": "monitoring_only",
+  "monitoring_risk_label": "仅监测（无本地定量校准）",
+  "monitoring_evidence_label": "US-CSCAP外部观测＋项目监测流程；未作本地校准",
+  "validation_status": "external_observation_only",
+  "source_doi": "10.15482/USDA.ADC/1411953",
+  "source_license": "CC0",
+  "stages": {
+    "V3": "V3 苗期",
+    "V6": "V6 拔节期",
+    "VT": "VT 抽雄期",
+    "R3": "R3 灌浆期"
+  },
+  "diseases": {
+    "gray_leaf_spot": {
+      "label": "玉米灰斑病（仅监测）",
+      "short_label": "灰斑病",
+      "environment_model": "none",
+      "treatment_policy": "consult_only",
+      "stage_note": "",
+      "confirmed_action": "该案例没有本地农药处方参数；已确认病害后，应依据当地推广部门意见和产品标签处置。",
+      "confirmed_evidence": "US-CSCAP；不使用河南规则",
+      "monitor_action": "保持巡查并记录病叶率或病情指数，不输出定量风险。",
+      "monitor_evidence": "US-CSCAP监测边界",
+      "pending_action": "出现疑似症状后先取样诊断，不能据此直接用药。",
+      "pending_evidence": "诊断前置"
+    },
+    "ear_rot": {
+      "label": "玉米穗腐病（外部观测）",
+      "short_label": "穗腐病",
+      "environment_model": "none",
+      "treatment_policy": "harvest_monitoring",
+      "conflict_stages": ["V3", "V6", "VT"],
+      "stage_note": "穗腐病重点在灌浆成熟期，当前生育期与该病害主要窗口不一致。",
+      "treatment_action": "穗腐病以灌浆成熟期巡查、降湿、收获管理和当地诊断为主，不由环境分数触发用药。",
+      "treatment_evidence": "US-CSCAP耳腐与茎腐观测；不作处方"
+    },
+    "stalk_rot": {
+      "label": "玉米茎腐/茎基腐（外部观测）",
+      "short_label": "茎腐病",
+      "environment_model": "none",
+      "treatment_policy": "diagnosis_only",
+      "stage_note": "",
+      "treatment_action": "先做田间症状、倒伏和病原诊断，当前案例不提供自动药剂方案。",
+      "treatment_evidence": "US-CSCAP茎腐观测"
+    },
+    "stewarts_wilt": {
+      "label": "Stewart's wilt（细菌性，仅监测）",
+      "short_label": "Stewart's wilt",
+      "environment_model": "none",
+      "treatment_policy": "consult_only",
+      "stage_note": "",
+      "confirmed_action": "该病不是真菌性病害，不进入杀菌剂路径；管理措施依据当地推广意见。",
+      "confirmed_evidence": "US-CSCAP；细菌性病害边界",
+      "monitor_action": "继续监测，不触发真菌防治路径。",
+      "monitor_evidence": "US-CSCAP监测边界",
+      "pending_action": "出现疑似症状时先诊断病原类别。",
+      "pending_evidence": "诊断前置"
+    },
+    "other_disease": {
+      "label": "其他已记录病害",
+      "short_label": "其他病害",
+      "environment_model": "none",
+      "treatment_policy": "consult_only",
+      "stage_note": "",
+      "confirmed_action": "当前案例不提供该病害的定量参数或自动处方。",
+      "confirmed_evidence": "US-CSCAP字段边界",
+      "monitor_action": "保留观测并咨询当地植保部门。",
+      "monitor_evidence": "US-CSCAP字段边界",
+      "pending_action": "先完成诊断，再依据当地指南处理。",
+      "pending_evidence": "诊断前置"
+    }
+  },
+  "cultivars": {
+    "unknown": {
+      "label": "未知",
+      "note": "品种身份未知；本案例不据此调整风险。"
+    },
+    "other": {
+      "label": "其他品种",
+      "note": "本案例品种名单不完整；其他品种保留身份但不自动调整风险。"
+    },
+    "VNS (Variety Not Stated)": {
+      "label": "VNS（未注明品种）"
+    },
+    "Pioneer 25R47": {
+      "label": "Pioneer 25R47"
+    },
+    "Pioneer 92Y80": {
+      "label": "Pioneer 92Y80"
+    },
+    "Dekalb DKC43-10RIB": {
+      "label": "Dekalb DKC43-10RIB"
+    }
+  },
+  "labels": {
+    "symptom": {
+      "none": "尚未发现症状",
+      "sparse": "零星病叶或异常",
+      "obvious": "症状已经明显"
+    },
+    "diagnosis": {
+      "not_assessed": "尚未诊断",
+      "suspected": "疑似，但未确诊",
+      "confirmed_fungal": "已确认真菌性病害",
+      "confirmed_nonfungal": "已排除真菌性病害"
+    },
+    "baseline": {
+      "unknown": "未知（不使用区域值代替）",
+      "none": "洪涝前未见病害",
+      "sporadic": "洪涝前零星发生",
+      "established": "洪涝前已经普遍发生"
+    },
+    "pressure": {
+      "low": "低",
+      "moderate": "中",
+      "high": "高",
+      "unknown": "未知"
+    },
+    "standing_water": {
+      "unknown": "未知",
+      "yes": "是，当前仍有明水",
+      "no": "否，当前无明水"
+    },
+    "flood_class": {
+      "not_available": "暂无独立遥感像元数据"
+    },
+    "environment": {
+      "optimal": "未在本案例建模",
+      "favorable": "未在本案例建模",
+      "partial": "未在本案例建模",
+      "unfavorable": "未在本案例建模",
+      "not_modeled": "当前案例未建立环境适宜度模型",
+      "not_applicable": "已排除真菌病害",
+      "insufficient_data": "数据不足：缺少温度或湿度"
+    },
+    "environment_metric": {
+      "optimal": "未建模",
+      "favorable": "未建模",
+      "partial": "未建模",
+      "unfavorable": "未建模",
+      "not_modeled": "未建模",
+      "not_applicable": "不适用",
+      "insufficient_data": "数据不足"
+    }
+  },
+  "default_preset": "V6 渍水 / 病害监测",
+  "custom_scenario": {
+    "crop_stage": null,
+    "flood_days": null,
+    "waterlog_days": null,
+    "drainage_delay_hours": null,
+    "standing_water": null,
+    "target_disease": null,
+    "symptom_status": null,
+    "diagnosis_status": "not_assessed",
+    "pre_flood_baseline": "unknown",
+    "cultivar_name": "unknown",
+    "disease_pressure": "unknown",
+    "temperature_c": null,
+    "humidity_pct": null,
+    "wind_speed_ms": null
+  },
+  "scenario_presets": {
+    "V6 渍水 / 病害监测": {
+      "crop_stage": "V6",
+      "flood_days": 0.0,
+      "waterlog_days": 4.0,
+      "drainage_delay_hours": 48.0,
+      "standing_water": false,
+      "target_disease": "ear_rot",
+      "symptom_status": "none",
+      "diagnosis_status": "not_assessed",
+      "pre_flood_baseline": "unknown",
+      "cultivar_name": "unknown",
+      "disease_pressure": "unknown",
+      "temperature_c": 24.0,
+      "humidity_pct": 85.0,
+      "wind_speed_ms": 2.0
+    },
+    "抽雄期 / 已确认茎腐": {
+      "crop_stage": "VT",
+      "flood_days": 0.0,
+      "waterlog_days": 3.0,
+      "drainage_delay_hours": 24.0,
+      "standing_water": false,
+      "target_disease": "stalk_rot",
+      "symptom_status": "obvious",
+      "diagnosis_status": "confirmed_fungal",
+      "pre_flood_baseline": "unknown",
+      "cultivar_name": "unknown",
+      "disease_pressure": "unknown",
+      "temperature_c": 24.0,
+      "humidity_pct": 85.0,
+      "wind_speed_ms": 2.0
+    }
+  },
+  "parameter_files": {
+    "priors": "model_parameter_priors_us.csv",
+    "rules": "decision_rules_us.csv",
+    "gaps": "gap_availability_us.csv"
+  },
+  "stage_parameters": {},
+  "waterlogging_parameters": {
+    "five_day_rule": "R-US-001",
+    "ten_day_rule": "R-US-001"
+  },
+  "environment_disease_code": "gray_leaf_spot",
+  "environment_rules": {},
+  "rule_parameters": {
+    "drainage_critical": "R-US-001",
+    "scouting_first": "R-US-010",
+    "scouting_second": "R-US-011",
+    "scouting_third": "R-US-012",
+    "scouting_routine": "R-US-013",
+    "scouting_storm": "R-US-014"
+  },
+  "base_evidence_rule_ids": [
+    "R-US-001",
+    "R-US-010",
+    "R-US-011",
+    "R-US-012",
+    "R-US-013",
+    "R-US-014"
+  ],
+  "limitations": [
+    "美国案例只提供外部观测和监测框架，没有本地洪涝—病害连续时序验证。",
+    "病害数据集中在少数站点，且数值病害主要为穗腐和茎腐，不能代表全部美国玉米带。",
+    "排水深度、土壤水分和病害数据并非来自同一组田块。",
+    "该案例不输出病害概率、精确产量损失或自动农药处方。",
+    "所有现场判断仍需当地推广部门、诊断和登记标签复核。"
+  ]
+}

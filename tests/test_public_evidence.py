@@ -1,56 +1,75 @@
+import sys
 import unittest
 from pathlib import Path
 
 import pandas as pd
 
-from public_evidence_db import DB_PATH, load_public_evidence
-
 
 PROJECT_DIR = Path(__file__).resolve().parents[1]
-DATA_DIR = PROJECT_DIR / "data"
+sys.path.insert(0, str(PROJECT_DIR))
 
 
-class PublicEvidenceDataTests(unittest.TestCase):
-    def test_read_only_database_contains_imported_tables(self) -> None:
-        self.assertTrue(DB_PATH.exists())
-        self.assertEqual(len(load_public_evidence("dataset_catalog")), 6)
-        self.assertEqual(len(load_public_evidence("flood_ndvi_case")), 6)
-        self.assertEqual(len(load_public_evidence("flood_case_metrics")), 6)
-        self.assertEqual(len(load_public_evidence("waterlogging_survival")), 80)
-        self.assertEqual(len(load_public_evidence("disease_progress")), 13)
-
-    def test_catalog_tracks_imported_and_candidate_sources(self) -> None:
-        catalog = load_public_evidence("dataset_catalog")
-        self.assertEqual(len(catalog), 6)
-        self.assertEqual(
-            catalog["integration_status"].str.startswith("已导入").sum(),
-            3,
+class PublicEvidenceTests(unittest.TestCase):
+    def test_one_acre_summary_is_present(self) -> None:
+        source = (
+            PROJECT_DIR.parent
+            / "additional data"
+            / "raw_data"
+            / "one_acre_fund_maize_survey_2016_2022"
+            / "One_Acre_Fund_MEL_maize_survey_data_2016-2022.csv"
         )
-        self.assertTrue(catalog["doi"].str.startswith("10.").all())
+        frame = pd.read_csv(source)
+        self.assertEqual(len(frame), 14773)
+        self.assertEqual(int((frame["water_excess"] & frame["disease"]).sum()), 43)
+        self.assertTrue(frame["yield_kg_ha"].notna().all())
 
-    def test_flood_case_contains_control_and_flooded_trajectories(self) -> None:
-        flood = load_public_evidence("flood_ndvi_case")
-        self.assertEqual(len(flood), 6)
-        self.assertEqual(flood["condition"].nunique(), 2)
-        self.assertTrue(flood["mean_ndvi"].between(0, 1).all())
+    def test_derived_public_evidence_files(self) -> None:
+        evidence_dir = PROJECT_DIR / "data" / "public_evidence_v0.2"
         self.assertEqual(
-            set(flood["source_id"]),
-            {"10.5281/zenodo.14261169"},
+            len(pd.read_csv(evidence_dir / "divine_leaf_wetness_hourly.csv")),
+            8784,
         )
+        self.assertEqual(
+            len(pd.read_csv(evidence_dir / "flood_tolerant_maize_2020_plots.csv")),
+            1594,
+        )
+        self.assertEqual(
+            len(pd.read_csv(evidence_dir / "italy_leaf_wetness_site_summary.csv")),
+            7,
+        )
+        lwd_summary = pd.read_csv(evidence_dir / "lwd_rh90_proxy_summary.csv")
+        self.assertEqual(len(lwd_summary), 2)
+        self.assertLess(lwd_summary["mean_sensitivity"].max(), 0.5)
 
-    def test_maize_waterlogging_survival_records_are_bounded(self) -> None:
-        survival = load_public_evidence("waterlogging_survival")
-        self.assertEqual(len(survival), 80)
-        self.assertTrue(survival["survival_pct"].between(0, 100).all())
-        self.assertTrue(survival["genotype"].is_unique)
-
-    def test_disease_progress_has_source_scope_and_fit_quality(self) -> None:
-        progress = load_public_evidence("disease_progress")
-        self.assertEqual(len(progress), 13)
-        self.assertTrue(progress["r_squared"].between(0, 1).all())
+    def test_public_register_and_gap_matrix(self) -> None:
+        register = pd.read_csv(
+            PROJECT_DIR / "data" / "public_dataset_register_v0.2.csv"
+        )
+        gaps = pd.read_csv(
+            PROJECT_DIR / "data" / "public_data_gap_matrix_v0.2.csv"
+        )
+        self.assertGreaterEqual(len(register), 10)
+        self.assertGreaterEqual(len(gaps), 14)
+        self.assertEqual(set(gaps["priority"]), {"P0", "P1", "P2"})
         self.assertTrue(
-            progress["evidence_scope"].str.contains("巴西").all()
+            {
+                "ONEACRE-MAIZE",
+                "FLOOD-MAIZE-UAV",
+                "DIVINE-LWD",
+                "ITALY-LWD",
+            }.issubset(set(register["dataset_id"]))
         )
+
+    def test_complete_missing_data_register(self) -> None:
+        missing = pd.read_csv(
+            PROJECT_DIR / "data" / "all_missing_data_v0.3.csv"
+        )
+        self.assertEqual(len(missing), 50)
+        self.assertEqual(
+            missing["priority"].value_counts().to_dict(),
+            {"P1": 24, "P0": 20, "P2": 6},
+        )
+        self.assertEqual(missing["data_id"].nunique(), len(missing))
 
 
 if __name__ == "__main__":

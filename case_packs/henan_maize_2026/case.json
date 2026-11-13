@@ -1,0 +1,326 @@
+{
+  "case_id": "henan_maize_2026",
+  "name": "河南夏玉米 2026",
+  "version": "0.6.0",
+  "season": "2026",
+  "country_code": "CN",
+  "region_code": "CN-HA",
+  "region_name": "河南",
+  "crop_code": "maize",
+  "crop_name": "玉米",
+  "currency_code": "CNY",
+  "description": "河南夏玉米洪涝—病害情景筛查案例包；只代表本案例的证据范围。",
+  "evidence_caption": "P013的4天边界用于状态分支，25%减产上界仅作解释，不进入风险分数。E14当前没有独立区域遥感像元输入，不使用田块明水天数替代。",
+  "overview_limits": [
+    "尚未获得真实受淹田与未受淹对照田的配对观测。",
+    "温度和湿度缺失时，不推断环境适宜度。",
+    "E14区域遥感分类需要独立像元数据，当前保持不可用。",
+    "所有预设值都是情景假设，不是田间实测。"
+  ],
+  "stages": {
+    "V3": "V3 苗期",
+    "V6": "V6 拔节期",
+    "VT": "VT 抽雄期",
+    "R3": "R3 灌浆期"
+  },
+  "diseases": {
+    "southern_rust": {
+      "label": "玉米南方锈病（可参数化）",
+      "short_label": "南方锈病",
+      "environment_model": "temperature_humidity",
+      "treatment_policy": "fungal_open",
+      "conflict_stages": ["V3", "V6"],
+      "stage_note": "南方锈病参数主要来自抽雄至灌浆期，早期阶段结论需更保守解释。",
+      "monitor_action": "继续监测，不触发药剂决策。",
+      "monitor_evidence": "E009",
+      "prepare_early_action": "尚未显症但环境适宜，提前准备巡查和当地植保咨询；见零星病叶后再诊断和决策。",
+      "prepare_early_evidence": "E02/D004/D005",
+      "pending_action": "已见疑似症状但尚未确诊，先完成诊断，不能直接推荐杀菌剂。",
+      "pending_evidence": "E008；E4安全合规",
+      "open_action_prefix": "已确认真菌性病害且作业条件允许；按登记标签和当地植保意见处置，",
+      "open_action_suffix": "天后复查，不自动开具药剂和剂量。",
+      "open_evidence": "E02/E011；E010不构成处方"
+    },
+    "stem_rot": {
+      "label": "茎基腐病（仅监测/诊断）",
+      "short_label": "茎基腐病",
+      "environment_model": "none",
+      "treatment_policy": "diagnosis_only",
+      "conflict_stages": ["V3", "V6"],
+      "stage_note": "茎基腐病多在涝后中后期显症，当前只能做监测与诊断准备。",
+      "treatment_action": "茎基腐病先做监测、取样和病原诊断；当前不给出自动药剂方案。",
+      "treatment_evidence": "A2纳入建议；E010安全边界"
+    },
+    "leaf_spot": {
+      "label": "小斑/弯孢叶斑类（仅监测）",
+      "short_label": "叶斑类病害",
+      "environment_model": "none",
+      "treatment_policy": "consult_only",
+      "stage_note": "",
+      "confirmed_action": "已确认真菌性叶斑类病害，但当前没有河南灾后定量参数；药剂和剂量必须以诊断结果、登记标签和当地植保意见为准。",
+      "confirmed_evidence": "A2/D3/E010",
+      "monitor_action": "继续监测，不触发药剂决策。",
+      "monitor_evidence": "A2/D3",
+      "pending_action": "叶斑类病害需先区分小斑、弯孢、大斑及其他原因，完成诊断后再咨询当地植保部门。",
+      "pending_evidence": "A2/D3/E008"
+    },
+    "ear_rot": {
+      "label": "穗腐病（后期监测）",
+      "short_label": "穗腐病",
+      "environment_model": "none",
+      "treatment_policy": "harvest_monitoring",
+      "conflict_stages": ["V3", "V6", "VT"],
+      "stage_note": "穗腐病重点在灌浆成熟期，当前生育期与该病害主要窗口不一致。",
+      "treatment_action": "穗腐病以灌浆成熟期巡查、降湿和收获管理为主，不由风险分数自动触发用药。",
+      "treatment_evidence": "A2/D3/D4"
+    }
+  },
+  "cultivars": {
+    "unknown": {
+      "label": "未知",
+      "note": "品种身份未知或为其他品种，当前保留未知状态，不进行品种风险调整。"
+    },
+    "other": {
+      "label": "其他品种",
+      "note": "品种身份未知或为其他品种，当前保留未知状态，不进行品种风险调整。"
+    },
+    "MY73": {
+      "label": "MY73"
+    },
+    "秋乐368": {
+      "label": "秋乐368"
+    },
+    "现代959": {
+      "label": "现代959"
+    },
+    "京科938": {
+      "label": "京科938"
+    },
+    "郑单958": {
+      "label": "郑单958（有公开耐涝对比）",
+      "note": "郑单958有公开耐涝对比证据，但这不等于其他年份、全部生育期或病害抗性都有定量参数；系统不据此调整病害风险。"
+    },
+    "泛玉298": {
+      "label": "泛玉298"
+    },
+    "棒博士767": {
+      "label": "棒博士767"
+    },
+    "伟科702": {
+      "label": "伟科702"
+    },
+    "科腾918": {
+      "label": "科腾918"
+    },
+    "鼎诺212": {
+      "label": "鼎诺212"
+    },
+    "伟科812": {
+      "label": "伟科812"
+    },
+    "浚单1618": {
+      "label": "浚单1618"
+    }
+  },
+  "labels": {
+    "symptom": {
+      "none": "尚未发现症状",
+      "sparse": "零星病叶或异常",
+      "obvious": "症状已经明显"
+    },
+    "diagnosis": {
+      "not_assessed": "尚未诊断",
+      "suspected": "疑似，但未确诊",
+      "confirmed_fungal": "已确认真菌性病害",
+      "confirmed_nonfungal": "已排除真菌性病害"
+    },
+    "baseline": {
+      "unknown": "未知（不使用区域值代替）",
+      "none": "洪涝前未见病害",
+      "sporadic": "洪涝前零星发生",
+      "established": "洪涝前已经普遍发生"
+    },
+    "pressure": {
+      "low": "低",
+      "moderate": "中",
+      "high": "高",
+      "unknown": "未知"
+    },
+    "standing_water": {
+      "unknown": "未知",
+      "yes": "是，当前仍有明水",
+      "no": "否，当前无明水"
+    },
+    "flood_class": {
+      "not_available": "暂无独立遥感像元数据"
+    },
+    "environment": {
+      "optimal": "适宜：24—28℃且RH≥90%",
+      "favorable": "可能适宜：15—31℃且高湿",
+      "partial": "仅部分条件满足",
+      "unfavorable": "当前环境不利",
+      "not_modeled": "所选病害未做环境建模",
+      "not_applicable": "已排除真菌病害",
+      "insufficient_data": "数据不足：缺少温度或湿度"
+    },
+    "environment_metric": {
+      "optimal": "适宜",
+      "favorable": "可能适宜",
+      "partial": "部分满足",
+      "unfavorable": "不利",
+      "not_modeled": "未建模",
+      "not_applicable": "不适用",
+      "insufficient_data": "数据不足"
+    }
+  },
+  "default_preset": "V6 严重淹水 / 高压力",
+  "custom_scenario": {
+    "crop_stage": null,
+    "flood_days": null,
+    "waterlog_days": null,
+    "drainage_delay_hours": null,
+    "standing_water": null,
+    "target_disease": null,
+    "symptom_status": null,
+    "diagnosis_status": "not_assessed",
+    "pre_flood_baseline": "unknown",
+    "cultivar_name": "unknown",
+    "disease_pressure": "unknown",
+    "temperature_c": null,
+    "humidity_pct": null,
+    "wind_speed_ms": null
+  },
+  "scenario_presets": {
+    "短时淹水 / 及时排水": {
+      "crop_stage": "V3",
+      "flood_days": 2.0,
+      "waterlog_days": 0.0,
+      "drainage_delay_hours": 12.0,
+      "standing_water": false,
+      "target_disease": "southern_rust",
+      "symptom_status": "none",
+      "diagnosis_status": "not_assessed",
+      "pre_flood_baseline": "unknown",
+      "cultivar_name": "unknown",
+      "disease_pressure": "moderate",
+      "temperature_c": 26.0,
+      "humidity_pct": 85.0,
+      "wind_speed_ms": 2.0
+    },
+    "V6 严重淹水 / 高压力": {
+      "crop_stage": "V6",
+      "flood_days": 5.0,
+      "waterlog_days": 3.0,
+      "drainage_delay_hours": 48.0,
+      "standing_water": false,
+      "target_disease": "southern_rust",
+      "symptom_status": "none",
+      "diagnosis_status": "not_assessed",
+      "pre_flood_baseline": "unknown",
+      "cultivar_name": "unknown",
+      "disease_pressure": "high",
+      "temperature_c": 27.0,
+      "humidity_pct": 95.0,
+      "wind_speed_ms": 2.0
+    },
+    "长时淹水 / 零星症状": {
+      "crop_stage": "V3",
+      "flood_days": 10.0,
+      "waterlog_days": 7.0,
+      "drainage_delay_hours": 96.0,
+      "standing_water": false,
+      "target_disease": "southern_rust",
+      "symptom_status": "sparse",
+      "diagnosis_status": "suspected",
+      "pre_flood_baseline": "sporadic",
+      "cultivar_name": "unknown",
+      "disease_pressure": "high",
+      "temperature_c": 27.0,
+      "humidity_pct": 95.0,
+      "wind_speed_ms": 2.5
+    },
+    "灌浆期 / 已确诊真菌病害": {
+      "crop_stage": "R3",
+      "flood_days": 10.0,
+      "waterlog_days": 5.0,
+      "drainage_delay_hours": 8.0,
+      "standing_water": false,
+      "target_disease": "southern_rust",
+      "symptom_status": "obvious",
+      "diagnosis_status": "confirmed_fungal",
+      "pre_flood_baseline": "sporadic",
+      "cultivar_name": "郑单958",
+      "disease_pressure": "high",
+      "temperature_c": 28.0,
+      "humidity_pct": 90.0,
+      "wind_speed_ms": 2.0
+    }
+  },
+  "parameter_files": {
+    "priors": "model_parameter_priors_v0.2.csv",
+    "rules": "decision_rules_v0.3.csv",
+    "gaps": "gap_availability_v0.1.csv"
+  },
+  "stage_parameters": {
+    "V3": {
+      "ten_day": "P014",
+      "short_duration": "P013"
+    },
+    "V6": {
+      "ten_day": "P015",
+      "short_duration": "P013",
+      "acceleration": "P016"
+    },
+    "VT": {
+      "ten_day": "P017",
+      "short_duration": "P013"
+    },
+    "R3": {
+      "ten_day": "P018"
+    }
+  },
+  "waterlogging_parameters": {
+    "five_day_rule": "R001",
+    "ten_day_rule": "R002"
+  },
+  "environment_disease_code": "southern_rust",
+  "environment_rules": {
+    "temperature_range": "R006",
+    "optimal_temperature": "R007",
+    "humidity_threshold": "R008"
+  },
+  "rule_parameters": {
+    "drainage_critical": "R005",
+    "scouting_first": "R010",
+    "scouting_second": "R011",
+    "scouting_third": "R012",
+    "scouting_routine": "R013",
+    "scouting_storm": "R014",
+    "application_wind": "R016",
+    "application_temperature": "R017",
+    "treatment_recheck": "R015"
+  },
+  "base_evidence_rule_ids": [
+    "R001",
+    "R002",
+    "R005",
+    "R010",
+    "R011",
+    "R012",
+    "R013",
+    "R014",
+    "R016",
+    "R017",
+    "R018",
+    "R019"
+  ],
+  "limitations": [
+    "风险区间是证据约束下的筛查分类，不是病害发生概率或精确产量损失。",
+    "处置优先级高表示需要优先排水、巡查和诊断，不等于田间已经发病或已经减产。",
+    "E02确认早晚期施药存在差异，但公开摘要未给出精确的早期和晚期天数。",
+    "E14的3/5/7天是区域遥感分级，不能替代田块实测的退水日期与水深。",
+    "E20不能提供可靠的严重度—产量斜率，因此不输出病害驱动的精确减产率。",
+    "所有施药建议在诊断、天气、标签和当地植保意见复核前都不得执行。",
+    "LWD、田块退水日和田块级洪涝前基线仍缺；主导品种耐涝性和排涝成本只有部分公开证据。"
+  ]
+}

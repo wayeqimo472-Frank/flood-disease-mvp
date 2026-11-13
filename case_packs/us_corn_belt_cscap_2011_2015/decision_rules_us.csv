@@ -1,0 +1,7 @@
+"rule_id","category","metric","condition","value_low","value_central","value_high","unit","time_value","time_unit","evidence_level","source_id","source_title","allowed_use","prohibited_use"
+"R-US-001","drainage_window","monitoring_critical_band","Project monitoring after heavy rainfall","3","","4","day","","","H","US-CSCAP-PROTOCOL","项目监测流程，不是美国本地排水阈值","Only for monitoring-window prompts","Do not present as a calibrated U.S. drainage threshold"
+"R-US-010","scouting","first_post_drainage_scout","After drainage","3","","","day","3","day","H","US-CSCAP-PROTOCOL","项目监测流程","Use as a project monitoring interval","Do not claim validated disease onset"
+"R-US-011","scouting","second_post_drainage_scout","After drainage","7","","","day","7","day","H","US-CSCAP-PROTOCOL","项目监测流程","Use as a project monitoring interval","Do not claim validated disease onset"
+"R-US-012","scouting","third_post_drainage_scout","After drainage","14","","","day","14","day","H","US-CSCAP-PROTOCOL","项目监测流程","Use as a project monitoring interval","Do not claim validated disease onset"
+"R-US-013","scouting","routine_interval","During maize season","7","","","day","7","day","H","US-CSCAP-PROTOCOL","项目监测流程","Use as a routine field scouting interval","Do not present as a biological risk window"
+"R-US-014","scouting","interval_after_storm","After heavy rainfall","3","","","day","3","day","H","US-CSCAP-PROTOCOL","项目监测流程","Use to intensify scouting","Do not trigger treatment from this interval alone"

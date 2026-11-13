@@ -15,12 +15,12 @@
 
 ## 最低字段
 
-可直接使用：
+可直接使用 v0.6 模板：
 
-- `data/field_observation_template_v0.4.csv`；
+- `data/field_observation_template_v0.6.csv`；
 - 页面“下载空白CSV模板”按钮。
 
-`field_id`必填。无法获得的字段留空，不填写0、不填写“正常”或猜测值。
+`field_id`必填。`case_id`、`region_code`、`country_code`、`crop_code`用于标明记录属于哪个案例包；无法获得的字段留空，不填写0、不填写“正常”或猜测值。
 
 ## 数据来源必须标注
 

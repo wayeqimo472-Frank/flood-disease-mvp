@@ -1,167 +1,67 @@
 from __future__ import annotations
 
+import sqlite3
 from html import escape
 from pathlib import Path
 
 import streamlit as st
 
+from case_pack import DEFAULT_CASE_ID, get_case_pack
 from risk_engine import FieldScenario
+from storage import save_assessment_run
 
 
-GAP_PATH = Path(__file__).resolve().parent / "data" / "gap_availability_v0.1.csv"
-DEFAULT_PRESET = "V6 严重淹水 / 高压力"
-
-SCENARIO_PRESETS = {
-    "短时淹水 / 及时排水": {
-        "crop_stage": "V3",
-        "flood_days": 2.0,
-        "waterlog_days": 0.0,
-        "drainage_delay_hours": 12.0,
-        "standing_water": False,
-        "target_disease": "southern_rust",
-        "symptom_status": "none",
-        "diagnosis_status": "not_assessed",
-        "pre_flood_baseline": "unknown",
-        "cultivar_name": "unknown",
-        "disease_pressure": "moderate",
-        "temperature_c": 26.0,
-        "humidity_pct": 85.0,
-        "wind_speed_ms": 2.0,
-    },
-    "V6 严重淹水 / 高压力": {
-        "crop_stage": "V6",
-        "flood_days": 5.0,
-        "waterlog_days": 3.0,
-        "drainage_delay_hours": 48.0,
-        "standing_water": False,
-        "target_disease": "southern_rust",
-        "symptom_status": "none",
-        "diagnosis_status": "not_assessed",
-        "pre_flood_baseline": "unknown",
-        "cultivar_name": "unknown",
-        "disease_pressure": "high",
-        "temperature_c": 27.0,
-        "humidity_pct": 95.0,
-        "wind_speed_ms": 2.0,
-    },
-    "长时淹水 / 零星症状": {
-        "crop_stage": "V3",
-        "flood_days": 10.0,
-        "waterlog_days": 7.0,
-        "drainage_delay_hours": 96.0,
-        "standing_water": False,
-        "target_disease": "southern_rust",
-        "symptom_status": "sparse",
-        "diagnosis_status": "suspected",
-        "pre_flood_baseline": "sporadic",
-        "cultivar_name": "unknown",
-        "disease_pressure": "high",
-        "temperature_c": 27.0,
-        "humidity_pct": 95.0,
-        "wind_speed_ms": 2.5,
-    },
-    "灌浆期 / 已确诊真菌病害": {
-        "crop_stage": "R3",
-        "flood_days": 10.0,
-        "waterlog_days": 5.0,
-        "drainage_delay_hours": 8.0,
-        "standing_water": False,
-        "target_disease": "southern_rust",
-        "symptom_status": "obvious",
-        "diagnosis_status": "confirmed_fungal",
-        "pre_flood_baseline": "sporadic",
-        "cultivar_name": "郑单958",
-        "disease_pressure": "high",
-        "temperature_c": 28.0,
-        "humidity_pct": 90.0,
-        "wind_speed_ms": 2.0,
-    },
-}
-
-CUSTOM_SCENARIO = {
-    "crop_stage": None,
-    "flood_days": None,
-    "waterlog_days": None,
-    "drainage_delay_hours": None,
-    "standing_water": None,
-    "target_disease": None,
-    "symptom_status": None,
-    "diagnosis_status": "not_assessed",
-    "pre_flood_baseline": "unknown",
-    "cultivar_name": "unknown",
-    "disease_pressure": "unknown",
-    "temperature_c": None,
-    "humidity_pct": None,
-    "wind_speed_ms": None,
-}
+CASE_PACK = get_case_pack(DEFAULT_CASE_ID)
+CASE_CONFIG = CASE_PACK.config
+CASE_NAME = CASE_PACK.name
+CROP_NAME = CASE_PACK.crop_name
+GAP_PATH = CASE_PACK.data_file("gaps")
+PUBLIC_DATA_REGISTER_PATH = (
+    Path(__file__).resolve().parent / "data" / "public_dataset_register_v0.2.csv"
+)
+PUBLIC_GAP_MATRIX_PATH = (
+    Path(__file__).resolve().parent / "data" / "public_data_gap_matrix_v0.2.csv"
+)
+PUBLIC_ALL_MISSING_PATH = (
+    Path(__file__).resolve().parent / "data" / "all_missing_data_v0.3.csv"
+)
+LWD_PROXY_SUMMARY_PATH = (
+    Path(__file__).resolve().parent
+    / "data"
+    / "public_evidence_v0.2"
+    / "lwd_rh90_proxy_summary.csv"
+)
+ONE_ACRE_OVERALL_SUMMARY_PATH = (
+    Path(__file__).resolve().parent
+    / "data"
+    / "public_evidence_v0.2"
+    / "one_acre_overall_exposure_summary.csv"
+)
+DEFAULT_PRESET = CASE_CONFIG["default_preset"]
+SCENARIO_PRESETS = CASE_CONFIG["scenario_presets"]
+CUSTOM_SCENARIO = CASE_CONFIG["custom_scenario"]
 
 INPUT_FIELDS = tuple(CUSTOM_SCENARIO)
 
-STAGE_LABELS = {
-    "V3": "V3 苗期",
-    "V6": "V6 拔节期",
-    "VT": "VT 抽雄期",
-    "R3": "R3 灌浆期",
-}
+STAGE_LABELS = CASE_CONFIG["stages"]
 DISEASE_LABELS = {
-    "southern_rust": "玉米南方锈病（可参数化）",
-    "stem_rot": "茎基腐病（仅监测/诊断）",
-    "leaf_spot": "小斑/弯孢叶斑类（仅监测）",
-    "ear_rot": "穗腐病（后期监测）",
-}
-SYMPTOM_LABELS = {
-    "none": "尚未发现症状",
-    "sparse": "零星病叶或异常",
-    "obvious": "症状已经明显",
-}
-DIAGNOSIS_LABELS = {
-    "not_assessed": "尚未诊断",
-    "suspected": "疑似，但未确诊",
-    "confirmed_fungal": "已确认真菌性病害",
-    "confirmed_nonfungal": "已排除真菌性病害",
-}
-BASELINE_LABELS = {
-    "unknown": "未知（不使用区域值代替）",
-    "none": "洪涝前未见病害",
-    "sporadic": "洪涝前零星发生",
-    "established": "洪涝前已经普遍发生",
+    key: value["label"] for key, value in CASE_CONFIG["diseases"].items()
 }
 CULTIVAR_LABELS = {
-    "unknown": "未知",
-    "other": "其他品种",
-    "MY73": "MY73",
-    "秋乐368": "秋乐368",
-    "现代959": "现代959",
-    "京科938": "京科938",
-    "郑单958": "郑单958（有公开耐涝对比）",
-    "泛玉298": "泛玉298",
-    "棒博士767": "棒博士767",
-    "伟科702": "伟科702",
-    "科腾918": "科腾918",
-    "鼎诺212": "鼎诺212",
-    "伟科812": "伟科812",
-    "浚单1618": "浚单1618",
+    key: value["label"] for key, value in CASE_CONFIG["cultivars"].items()
 }
-PRESSURE_LABELS = {"low": "低", "moderate": "中", "high": "高", "unknown": "未知"}
-FLOOD_CLASS_LABELS = {"not_available": "暂无独立遥感像元数据"}
-ENVIRONMENT_LABELS = {
-    "optimal": "适宜：24—28℃且RH≥90%",
-    "favorable": "可能适宜：15—31℃且高湿",
-    "partial": "仅部分条件满足",
-    "unfavorable": "当前环境不利",
-    "not_modeled": "所选病害未做环境建模",
-    "not_applicable": "已排除真菌病害",
-    "insufficient_data": "数据不足：缺少温度或湿度",
+CULTIVAR_NOTES = {
+    key: value["note"]
+    for key, value in CASE_CONFIG["cultivars"].items()
+    if value.get("note")
 }
-ENVIRONMENT_METRIC_LABELS = {
-    "optimal": "适宜",
-    "favorable": "可能适宜",
-    "partial": "部分满足",
-    "unfavorable": "不利",
-    "not_modeled": "未建模",
-    "not_applicable": "不适用",
-    "insufficient_data": "数据不足",
-}
+SYMPTOM_LABELS = CASE_CONFIG["labels"]["symptom"]
+DIAGNOSIS_LABELS = CASE_CONFIG["labels"]["diagnosis"]
+BASELINE_LABELS = CASE_CONFIG["labels"]["baseline"]
+PRESSURE_LABELS = CASE_CONFIG["labels"]["pressure"]
+FLOOD_CLASS_LABELS = CASE_CONFIG["labels"]["flood_class"]
+ENVIRONMENT_LABELS = CASE_CONFIG["labels"]["environment"]
+ENVIRONMENT_METRIC_LABELS = CASE_CONFIG["labels"]["environment_metric"]
 DATA_COMPLETENESS_LABELS = {
     "complete": "完整",
     "partial": "部分缺失",
@@ -172,11 +72,7 @@ PARAMETER_ROLE_LABELS = {
     "状态判断参数": "状态判断参数",
     "解释性证据": "解释性证据",
 }
-STANDING_WATER_LABELS = {
-    "unknown": "未知",
-    "yes": "是，当前仍有明水",
-    "no": "否，当前无明水",
-}
+STANDING_WATER_LABELS = CASE_CONFIG["labels"]["standing_water"]
 WINDOW_STATUS_LABELS = {
     "not_applicable": "不适用",
     "active": "立即排水",
@@ -204,11 +100,72 @@ WINDOW_STATUS_LABELS = {
 }
 
 
+def activate_case(case_id: str) -> None:
+    global CASE_PACK, CASE_CONFIG, CASE_NAME, CROP_NAME
+    global GAP_PATH, DEFAULT_PRESET, SCENARIO_PRESETS, CUSTOM_SCENARIO
+    global INPUT_FIELDS, STAGE_LABELS, DISEASE_LABELS, CULTIVAR_LABELS
+    global CULTIVAR_NOTES, SYMPTOM_LABELS, DIAGNOSIS_LABELS, BASELINE_LABELS
+    global PRESSURE_LABELS, FLOOD_CLASS_LABELS, ENVIRONMENT_LABELS
+    global ENVIRONMENT_METRIC_LABELS, STANDING_WATER_LABELS
+
+    pack = get_case_pack(case_id)
+    previous = st.session_state.get("_active_case_id")
+    if previous and previous != case_id:
+        for key in (
+            "current_result",
+            "current_inputs",
+            "current_preset",
+            "current_modified_fields",
+            "current_case_id",
+            "storage_error",
+            "risk_preset",
+        ):
+            st.session_state.pop(key, None)
+
+    CASE_PACK = pack
+    CASE_CONFIG = pack.config
+    CASE_NAME = pack.name
+    CROP_NAME = pack.crop_name
+    GAP_PATH = pack.data_file("gaps")
+    DEFAULT_PRESET = CASE_CONFIG["default_preset"]
+    SCENARIO_PRESETS = CASE_CONFIG["scenario_presets"]
+    CUSTOM_SCENARIO = CASE_CONFIG["custom_scenario"]
+    INPUT_FIELDS = tuple(CUSTOM_SCENARIO)
+    STAGE_LABELS = CASE_CONFIG["stages"]
+    DISEASE_LABELS = {
+        key: value["label"] for key, value in CASE_CONFIG["diseases"].items()
+    }
+    CULTIVAR_LABELS = {
+        key: value["label"] for key, value in CASE_CONFIG["cultivars"].items()
+    }
+    CULTIVAR_NOTES = {
+        key: value["note"]
+        for key, value in CASE_CONFIG["cultivars"].items()
+        if value.get("note")
+    }
+    SYMPTOM_LABELS = CASE_CONFIG["labels"]["symptom"]
+    DIAGNOSIS_LABELS = CASE_CONFIG["labels"]["diagnosis"]
+    BASELINE_LABELS = CASE_CONFIG["labels"]["baseline"]
+    PRESSURE_LABELS = CASE_CONFIG["labels"]["pressure"]
+    FLOOD_CLASS_LABELS = CASE_CONFIG["labels"]["flood_class"]
+    ENVIRONMENT_LABELS = CASE_CONFIG["labels"]["environment"]
+    ENVIRONMENT_METRIC_LABELS = CASE_CONFIG["labels"]["environment_metric"]
+    STANDING_WATER_LABELS = CASE_CONFIG["labels"]["standing_water"]
+    st.session_state._active_case_id = case_id
+
+
 def clone_inputs(values: dict[str, object]) -> dict[str, object]:
     return {field: values.get(field) for field in INPUT_FIELDS}
 
 
-def scenario_from_inputs(values: dict[str, object]) -> FieldScenario:
+def scenario_from_inputs(
+    values: dict[str, object],
+    case_id: str | None = None,
+) -> FieldScenario:
+    active_case_id = case_id or st.session_state.get(
+        "_active_case_id",
+        DEFAULT_CASE_ID,
+    )
     return FieldScenario(
         crop_stage=values["crop_stage"],
         flood_days=values["flood_days"],
@@ -224,6 +181,7 @@ def scenario_from_inputs(values: dict[str, object]) -> FieldScenario:
         temperature_c=values["temperature_c"],
         humidity_pct=values["humidity_pct"],
         wind_speed_ms=values["wind_speed_ms"],
+        case_id=active_case_id,
     )
 
 
@@ -233,8 +191,22 @@ def save_current_state(
     result,
     modified_fields: list[str],
 ) -> None:
+    case_id = result.case_id
+    inputs_to_save = clone_inputs(inputs)
+    try:
+        save_assessment_run(
+            case_id=case_id,
+            case_version=result.case_version,
+            inputs=inputs_to_save,
+            result=result,
+        )
+    except (OSError, sqlite3.Error, ValueError) as error:
+        st.session_state.storage_error = str(error)
+    else:
+        st.session_state.pop("storage_error", None)
+    st.session_state.current_case_id = case_id
     st.session_state.current_preset = preset_name
-    st.session_state.current_inputs = clone_inputs(inputs)
+    st.session_state.current_inputs = inputs_to_save
     st.session_state.current_result = result
     st.session_state.current_modified_fields = tuple(modified_fields)
 
@@ -301,6 +273,8 @@ def render_assessment_status() -> None:
         )
         metric_cols[2].caption("结果来源")
         metric_cols[2].write("当前已提交输入")
+    if st.session_state.get("storage_error"):
+        st.warning(f"计算已完成，但写入本地数据库失败：{st.session_state.storage_error}")
 
 
 def result_cards(result) -> list[tuple[str, str]]:
@@ -361,7 +335,12 @@ def render_metric_cards(cards: list[tuple[str, str]]) -> None:
 
 
 def render_priority_notice(result) -> None:
-    if result.risk_low == "unknown":
+    if result.risk_model == "monitoring_only":
+        st.info(
+            f"当前案例为“{result.risk_label}”：系统保留暴露、病害和产量观测，"
+            "但不把外部文献先验包装成本地区定量风险。"
+        )
+    elif result.risk_low == "unknown":
         st.warning(
             f"当前处置优先级为“{result.risk_label}”：核心涝渍暴露数据不完整，"
             "未把缺失值当作0或低风险。"

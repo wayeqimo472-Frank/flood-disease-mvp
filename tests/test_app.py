@@ -1,5 +1,9 @@
+import atexit
+import os
 import re
+import shutil
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -9,6 +13,12 @@ from streamlit.testing.v1 import AppTest
 
 PROJECT_DIR = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(PROJECT_DIR))
+
+TEST_TMP = PROJECT_DIR / "tmp"
+TEST_TMP.mkdir(exist_ok=True)
+APP_TEST_DIR = Path(tempfile.mkdtemp(prefix="app-test-db-", dir=TEST_TMP))
+os.environ["FLOOD_APP_DB_PATH"] = str(APP_TEST_DIR / "app.db")
+atexit.register(shutil.rmtree, APP_TEST_DIR, ignore_errors=True)
 
 from batch_io import TEMPLATE_COLUMNS  # noqa: E402
 
@@ -53,6 +63,9 @@ class AppSmokeTests(unittest.TestCase):
             if "实际使用字段" in item.value.columns
         )
 
+    def _selectbox(self, app: AppTest, label: str):
+        return next(item for item in app.selectbox if item.label == label)
+
     def test_overview_renders_without_exception(self) -> None:
         app = self._app()
         self.assertFalse(app.exception)
@@ -88,7 +101,9 @@ class AppSmokeTests(unittest.TestCase):
 
     def test_preset_changes_numeric_inputs(self) -> None:
         app = self._risk_app()
-        app.selectbox[0].set_value("短时淹水 / 及时排水").run(timeout=20)
+        self._selectbox(app, "快速情景").set_value(
+            "短时淹水 / 及时排水"
+        ).run(timeout=20)
         self.assertFalse(app.exception)
         self.assertEqual(app.number_input[0].value, 2.0)
         self.assertEqual(app.number_input[1].value, 0.0)
@@ -96,12 +111,12 @@ class AppSmokeTests(unittest.TestCase):
 
     def test_custom_scenario_has_no_v6_fallback(self) -> None:
         app = self._risk_app()
-        app.selectbox[0].set_value("自定义").run(timeout=20)
+        self._selectbox(app, "快速情景").set_value("自定义").run(timeout=20)
         self.assertFalse(app.exception)
         self.assertEqual([item.value for item in app.number_input], [None] * 6)
-        self.assertIsNone(app.selectbox[1].value)
-        self.assertIsNone(app.selectbox[3].value)
-        self.assertIsNone(app.selectbox[4].value)
+        self.assertIsNone(self._selectbox(app, "玉米生育期").value)
+        self.assertIsNone(self._selectbox(app, "目标病害").value)
+        self.assertIsNone(self._selectbox(app, "当前症状").value)
         self.assertEqual(self._cards(app)[1], "数据不足")
         self.assertEqual(
             self._submitted_inputs(app)["情景来源"],
@@ -140,18 +155,18 @@ class AppSmokeTests(unittest.TestCase):
 
     def test_custom_values_differ_from_preset_and_are_used(self) -> None:
         app = self._risk_app()
-        app.selectbox[0].set_value("自定义").run(timeout=20)
+        self._selectbox(app, "快速情景").set_value("自定义").run(timeout=20)
         app.number_input[0].set_value(7.0)
         app.number_input[1].set_value(3.0)
         app.number_input[2].set_value(48.0)
         app.number_input[3].set_value(27.0)
         app.number_input[4].set_value(95.0)
         app.number_input[5].set_value(2.0)
-        app.selectbox[1].set_value("V6")
-        app.selectbox[2].set_value("no")
-        app.selectbox[3].set_value("southern_rust")
-        app.selectbox[4].set_value("none")
-        app.selectbox[8].set_value("high")
+        self._selectbox(app, "玉米生育期").set_value("V6")
+        self._selectbox(app, "当前田面明水状态").set_value("no")
+        self._selectbox(app, "目标病害").set_value("southern_rust")
+        self._selectbox(app, "当前症状").set_value("none")
+        self._selectbox(app, "周边病害压力或外部菌源").set_value("high")
         app.run(timeout=20)
         self.assertFalse(app.exception)
         self.assertEqual(self._cards(app)[2], "明水7天 / 渍水3天")
@@ -173,7 +188,7 @@ class AppSmokeTests(unittest.TestCase):
         )
 
         app.switch_page(str(PROJECT_DIR / "pages" / "2_risk.py")).run(timeout=20)
-        app.selectbox[1].set_value("R3").run(timeout=20)
+        self._selectbox(app, "玉米生育期").set_value("R3").run(timeout=20)
         app.switch_page(str(PROJECT_DIR / "pages" / "5_evidence.py")).run(timeout=20)
         r3 = self._parameter_table(app)
         self.assertIn("P018", set(r3["parameter_id"]))
@@ -250,7 +265,6 @@ class AppSmokeTests(unittest.TestCase):
         self.assertTrue(any("当前会话上传" in item.value for item in app.subheader))
         self.assertTrue(any("field.csv" in item.value for item in app.markdown))
         self.assertTrue(any("v1" in item.value for item in app.markdown))
-
 
 if __name__ == "__main__":
     unittest.main()

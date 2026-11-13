@@ -5,6 +5,7 @@ from risk_engine import assess
 from ui_common import (
     BASELINE_LABELS,
     CULTIVAR_LABELS,
+    CULTIVAR_NOTES,
     CUSTOM_SCENARIO,
     DATA_COMPLETENESS_LABELS,
     DEFAULT_PRESET,
@@ -190,7 +191,7 @@ with input_2:
     )
     cultivar_options = list(CULTIVAR_LABELS)
     cultivar_name = st.selectbox(
-        "2026 河南主导品种",
+        "案例主栽品种",
         options=cultivar_options,
         index=_option_index(
             cultivar_options,
@@ -199,10 +200,8 @@ with input_2:
         format_func=CULTIVAR_LABELS.get,
         key=f"cultivar_name::{preset_name}",
     )
-    if cultivar_name == "郑单958":
-        st.caption("品种身份已知；有公开耐涝对比，但没有足够的病害抗性证据用于风险调整。")
-    elif cultivar_name in {"unknown", "other"}:
-        st.caption("品种身份未知或为其他品种；保留未知状态，不进行品种风险调整。")
+    if cultivar_name in CULTIVAR_NOTES:
+        st.caption(CULTIVAR_NOTES[cultivar_name])
     else:
         st.caption("品种身份已知；该主导品种缺少公开耐涝分级，不进行品种风险调整。")
     pressure_options = list(PRESSURE_LABELS)

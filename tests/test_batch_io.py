@@ -49,7 +49,7 @@ class BatchIoTests(unittest.TestCase):
         self.assertTrue(frame.empty)
 
     def test_saved_template_matches_generated_template(self) -> None:
-        path = PROJECT_DIR / "data" / "field_observation_template_v0.4.csv"
+        path = PROJECT_DIR / "data" / "field_observation_template_v0.6.csv"
         frame = pd.read_csv(path)
         self.assertEqual(list(frame.columns), TEMPLATE_COLUMNS)
         self.assertTrue(frame.empty)
@@ -75,6 +75,11 @@ class BatchIoTests(unittest.TestCase):
         self.assertEqual(row["environment_suitability"], "optimal")
         self.assertEqual(row["regional_flood_status"], "not_available")
         self.assertEqual(row["missing_inputs"], "")
+        self.assertEqual(row["case_id"], "henan_maize_2026")
+        self.assertEqual(row["region_code"], "CN-HA")
+        self.assertEqual(row["country_code"], "CN")
+        self.assertEqual(row["crop_code"], "maize")
+        self.assertEqual(row["currency_code"], "CNY")
         self.assertTrue(result_csv(results).startswith(b"\xef\xbb\xbf"))
 
     def test_missing_environment_keeps_core_assessment(self) -> None:
@@ -140,6 +145,25 @@ class BatchIoTests(unittest.TestCase):
         results, errors = assess_csv(data)
         self.assertTrue(results.empty)
         self.assertTrue((errors["错误"] == "缺少必需列").all())
+
+    def test_us_cscap_observations_are_marked_external(self) -> None:
+        path = (
+            PROJECT_DIR
+            / "case_packs"
+            / "us_corn_belt_cscap_2011_2015"
+            / "processed"
+            / "observations_v0.6.csv"
+        )
+        results, errors = assess_csv(path.read_bytes())
+        self.assertTrue(errors.empty)
+        self.assertEqual(len(results), 168)
+        self.assertEqual(
+            set(results["case_id"]),
+            {"us_corn_belt_cscap_2011_2015"},
+        )
+        self.assertEqual(set(results["evidence_level"]), {"EXTERNAL_OBSERVED"})
+        self.assertEqual(results["risk_label"].nunique(), 1)
+        self.assertIn("仅监测", results.iloc[0]["risk_label"])
 
 
 if __name__ == "__main__":

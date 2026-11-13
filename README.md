@@ -1,12 +1,25 @@
 # 洪涝次生灾害风险原型
 
-当前完成参数先验、最小风险计算核心和 Streamlit 五页原型。
+当前完成参数先验、最小风险计算核心、可切换案例包、本地 SQLite 持久化和 Streamlit 五页原型。
+
+当前案例包：
+
+- `henan_maize_2026`：唯一完成本地定量规则封装的默认案例；
+- `us_corn_belt_cscap_2011_2015`：美国玉米带CC0公开观测案例，只提供监测框架，不输出本地定量风险。
 
 ## 当前文件
 
-- `data/model_parameter_priors_v0.2.csv`：当前模型参数先验。
-- `data/decision_rules_v0.3.csv`：涝渍、环境、四段窗口和安全规则。
-- `data/gap_availability_v0.1.csv`：五项关键缺口的可得性与替代方案。
+- `data/model_parameter_priors_v0.2.csv`、`data/decision_rules_v0.3.csv`、`data/gap_availability_v0.1.csv`：v0.5历史输入，保留用于审计。
+- `case_packs/henan_maize_2026/case.json`：河南夏玉米案例的元数据、标签、品种、病害和预设。
+- `case_packs/henan_maize_2026/`：案例包独占的参数、规则和缺口表。
+- `case_packs/us_corn_belt_cscap_2011_2015/`：美国玉米带公开数据、处理结果和监测案例。
+- `case_pack.py`：案例包发现、读取和路径校验。
+- `storage.py`：本地 SQLite 观测批次、田块记录和计算历史。
+- `data/public_dataset_register_v0.2.csv`：公开数据来源、许可、字段边界和本地状态。
+- `data/public_data_gap_matrix_v0.2.csv`：项目级P0—P2数据缺口矩阵。
+- `data/all_missing_data_v0.3.csv`：50项逐字段缺失数据总表。
+- `data/public_evidence_v0.2/`：One Acre Fund、受淹玉米试验、DIVINE和意大利LWD的整理结果。
+- `tools/build_public_evidence_v0_2.py`：公开证据文件重建脚本。
 - `docs/source_selection_v0.2.md`：来源取舍和证据边界。
 - `docs/ae_integration_v0.3.md`：A—E专项调研的选择性整合说明。
 - `risk_engine.py`：规则型风险与干预窗口计算核心。
@@ -17,10 +30,15 @@
 - `tests/test_risk_engine.py`：典型情景自检。
 - `tests/test_app.py`：页面冒烟测试。
 - `tests/test_batch_io.py`：CSV导入与逐行校验测试。
-- `data/field_observation_template_v0.4.csv`：空白田块观测模板。
+- `tests/test_case_pack.py`：案例包发现、元数据和作用域测试。
+- `tests/test_storage.py`：SQLite导入、去重、计算历史和备份测试。
+- `data/field_observation_template_v0.6.csv`：带案例、地区和统一单位字段的空白田块观测模板。
 - `data/demo_scenarios_v0.4.csv`：明确标注为逻辑测试的合成情景。
 - `data/supplementary_source_assessment_v0.1.csv`：补充资料逐项可用性判断。
 - `docs/v0.4_acceptance_freeze.md`：v0.4验收、哈希和冻结边界。
+- `docs/v0.6_case_pack_and_sqlite.md`：案例包、SQLite结构和单用户边界。
+- `docs/public_data_expansion_v0.2.md`：2026-11-13公开数据扩展和缺口判断。
+- `docs/all_missing_data_v0.3.md`：全部缺失字段的分组说明和优先级。
 - `docs/demo_scenarios_v0.4.md`：逻辑测试情景及预期结果。
 - `docs/field_data_request_packet_v0.4.md`：合作方数据请求说明。
 
@@ -50,7 +68,62 @@
 - 按实际执行路径展示参数用途、使用字段、时间阈值、数值区间和限制说明。
 - 下载空白田块观测模板，上传CSV进行逐行校验和批量计算，并导出结果。
 - 五个页面通过侧边栏导航，当前评估状态始终可见；
-- CSV上传在当前浏览器会话中保留，可区分原始上传和计算合并结果。
+- CSV上传在当前浏览器会话中保留，并写入 `data/app.db`；相同文件按 SHA256 去重；
+- 田块数据页可重新载入数据库中的历史批次，并下载原始文件和计算结果；
+- 总览页显示最近计算历史，计算结果与案例包版本可追溯。
+
+## 案例包与数据库
+
+默认案例包为：
+
+```text
+henan_maize_2026
+```
+
+页面侧边栏可以直接切换案例包。也可通过环境变量指定启动时默认案例：
+
+```powershell
+$env:FLOOD_APP_CASE_ID="henan_maize_2026"
+```
+
+切换到美国监测案例：
+
+```powershell
+$env:FLOOD_APP_CASE_ID="us_corn_belt_cscap_2011_2015"
+```
+
+美国案例的 `risk_model` 为 `monitoring_only`，页面会明确显示“仅监测（无本地定量校准）”，不会借用河南参数生成风险分级。
+
+数据库默认位置：
+
+```text
+D:\360MoveData\Users\Lenovo\Desktop\大创项目\flood_disease_mvp\data\app.db
+```
+
+如需把数据库放到其他 D 盘目录，可在启动前设置：
+
+```powershell
+$env:FLOOD_APP_DB_PATH="D:\APP\flood_disease\app.db"
+```
+
+数据库包含：
+
+- `import_batches`：CSV文件、哈希、导入时间和错误摘要；
+- `field_observations`：逐田块原始字段与计算结果；
+- `assessment_runs`：单次风险计算的输入、案例版本和结果。
+
+当前数据库已预载一个美国案例外部观测批次：168条，案例ID为 `us_corn_belt_cscap_2011_2015`。计算历史为空。
+
+美国案例数据由 [tools/build_us_cscap_case.py](tools/build_us_cscap_case.py) 从USDA原始工作簿重建。原始工作簿MD5已核验，处理结果包含：
+
+- 30个试验点；
+- 1618条玉米产量记录；
+- 4536条玉米病害数值评级；
+- 168条规范化病害观测；
+- 25518条逐日地下水位；
+- 22293条逐日排水流量；
+- 2175条田间作业记录；
+- 8个州的站点元数据。
 
 ## 当前限制
 
@@ -64,8 +137,12 @@
 - 不建立“洪涝后第 N 天”风险曲线；
 - 不自动提供农药名称、剂量或处方；
 - 区域或推算值不会替代田块级缺失数据；
-- CSV数据不做永久保存，刷新页面或新建会话后需要重新上传；
+- 当前为单用户本地数据库，没有登录、多用户权限或并发协作；
+- SQLite数据库没有自动备份，重要数据需要定期复制 `app.db`；
+- 田块数据页提供“创建本地数据库备份”按钮，备份写入 `data/backups/`；
+- 当前仍不接云数据库；需要多人协作时再迁移 PostgreSQL；
 - 核心涝渍暴露缺失时处置优先级显示“数据不足”，但环境等可判断维度仍独立输出；
 - 温度或湿度缺失时，南方锈病环境适宜度显示“数据不足”；
 - 当前不输出病害导致的精确产量损失；
 - 所有结果都必须保留“文献先验/情景规则”标签。
+- 美国案例不输出定量风险，原因是公开数据没有形成同一田块的洪涝—病害连续时序。

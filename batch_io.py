@@ -4,12 +4,27 @@ from io import BytesIO
 
 import pandas as pd
 
+from case_pack import DEFAULT_CASE_ID, get_case_pack
 from risk_engine import FieldScenario, assess
 
 
+SCOPE_COLUMNS = [
+    "case_id",
+    "region_code",
+    "country_code",
+    "admin_level_1",
+    "admin_level_2",
+    "crop_code",
+]
+UNIT_COLUMNS = [
+    "yield_kg_ha",
+    "intervention_cost_per_ha",
+    "currency_code",
+]
 METADATA_COLUMNS = [
     "record_id",
     "field_id",
+    *SCOPE_COLUMNS,
     "observation_date",
     "observer",
     "county",
@@ -28,6 +43,7 @@ METADATA_COLUMNS = [
     "intervention_cost_yuan_per_mu",
     "yield_kg_per_mu",
     "yield_loss_pct",
+    *UNIT_COLUMNS,
     "evidence_level",
     "notes",
 ]
@@ -172,6 +188,8 @@ def assess_csv(data: bytes) -> tuple[pd.DataFrame, pd.DataFrame]:
             continue
 
         try:
+            case_id = _text(row.get("case_id")) or DEFAULT_CASE_ID
+            pack = get_case_pack(case_id)
             scenario = FieldScenario(
                 crop_stage=_text(row.get("crop_stage")),
                 flood_days=_number(row.get("flood_days"), "flood_days", row_number, errors),
@@ -202,6 +220,7 @@ def assess_csv(data: bytes) -> tuple[pd.DataFrame, pd.DataFrame]:
                 wind_speed_ms=_number(
                     row.get("wind_speed_ms"), "wind_speed_ms", row_number, errors
                 ),
+                case_id=case_id,
             )
             if len(errors) > row_error_count:
                 continue
@@ -219,6 +238,14 @@ def assess_csv(data: bytes) -> tuple[pd.DataFrame, pd.DataFrame]:
         result = {column: row.get(column, "") for column in TEMPLATE_COLUMNS}
         result.update(
             {
+                "case_id": scenario.case_id,
+                "region_code": _text(row.get("region_code")) or pack.region_code,
+                "country_code": _text(row.get("country_code")) or pack.country_code,
+                "crop_code": _text(row.get("crop_code")) or pack.crop_code,
+                "currency_code": (
+                    _text(row.get("currency_code"))
+                    or str(pack.config.get("currency_code") or "")
+                ),
                 "crop_stage": scenario.crop_stage or "",
                 "flood_days": scenario.flood_days,
                 "waterlog_days": scenario.waterlog_days,

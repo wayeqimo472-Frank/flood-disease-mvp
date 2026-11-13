@@ -32,7 +32,7 @@
 | `symptom_status` | 当前症状 | `none`、`sparse`、`obvious`，可空 |
 | `diagnosis_status` | 诊断状态 | `not_assessed`、`suspected`、`confirmed_fungal`、`confirmed_nonfungal` |
 | `pre_flood_baseline` | 洪涝前病情基线 | `unknown`、`none`、`sporadic`、`established` |
-| `cultivar_name` | 河南主导品种代码 | 见页面选项，可空 |
+| `cultivar_name` | 当前案例包的主栽品种代码 | 见页面选项，可空 |
 | `disease_pressure` | 周边病害压力 | `low`、`moderate`、`high`、`unknown` |
 | `temperature_c` | 日平均温度 | ℃，可空 |
 | `humidity_pct` | 平均相对湿度 | %，可空 |

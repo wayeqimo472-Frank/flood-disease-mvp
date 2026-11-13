@@ -1,6 +1,9 @@
+import pandas as pd
 import streamlit as st
 
+from storage import list_assessment_runs
 from ui_common import (
+    CASE_CONFIG,
     DATA_COMPLETENESS_LABELS,
     ENVIRONMENT_METRIC_LABELS,
     current_source_label,
@@ -60,9 +63,21 @@ with col_3:
     st.page_link("pages/4_field_data.py", label="管理田块数据", icon="📁")
 
 st.subheader("当前数据边界")
-st.write(
-    "- 尚未获得真实受淹田与未受淹对照田的配对观测。"
-    "\n- 温度和湿度缺失时，不推断环境适宜度。"
-    "\n- E14区域遥感分类需要独立像元数据，当前保持不可用。"
-    "\n- 所有预设值都是情景假设，不是田间实测。"
-)
+for limitation in CASE_CONFIG.get("overview_limits", []):
+    st.write(f"- {limitation}")
+
+recent_runs = list_assessment_runs(limit=5)
+if recent_runs:
+    st.subheader("本地计算历史")
+    st.dataframe(
+        pd.DataFrame(recent_runs).rename(
+            columns={
+                "run_hash": "记录哈希",
+                "case_id": "案例包",
+                "case_version": "版本",
+                "created_at": "计算时间",
+            }
+        ),
+        hide_index=True,
+        width="stretch",
+    )

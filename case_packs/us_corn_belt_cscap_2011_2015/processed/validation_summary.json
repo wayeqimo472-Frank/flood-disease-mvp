@@ -1,0 +1,28 @@
+{
+  "case_id": "us_corn_belt_cscap_2011_2015",
+  "source_workbook_md5": "34d284bb59f549e25ea9f77b33721003",
+  "sites": 30,
+  "corn_yield_rows": 1618,
+  "disease_rating_rows": 4536,
+  "disease_yield_rows": 2844,
+  "disease_observation_rows": 168,
+  "water_table_daily_rows": 25518,
+  "tile_flow_daily_rows": 22293,
+  "field_operation_rows": 2175,
+  "pesticide_rows": 486,
+  "states": [
+    "IA",
+    "IL",
+    "IN",
+    "MI",
+    "MN",
+    "MO",
+    "OH",
+    "WI"
+  ],
+  "diseases": [
+    "ear_rot",
+    "stalk_rot"
+  ],
+  "limitation": "No public field-level flood-disease time series was found. This case is an external observation and monitoring case, not local calibration."
+}

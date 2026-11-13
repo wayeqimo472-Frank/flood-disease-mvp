@@ -1,0 +1,27 @@
+{
+  "one_acre_fund": {
+    "source_rows": 14773,
+    "water_excess_fields": 1172,
+    "disease_affected_fields": 381,
+    "both_fields": 43
+  },
+  "divine_leaf_wetness": {
+    "hourly_rows": 8784,
+    "daily_rows": 367,
+    "start": "2023-06-01 00:00:00",
+    "end": "2024-06-01 00:00:00"
+  },
+  "lwd_rh90_proxy_validation": {
+    "comparison_rows": 16
+  },
+  "flood_tolerant_maize": {
+    "plot_rows": 1594,
+    "standing_water_comment_rows": 214,
+    "derived_yield_rows": 1364
+  },
+  "italy_leaf_wetness": {
+    "sites": 7,
+    "hourly_rows": 55550
+  },
+  "boundary": "These outputs keep source datasets separate. They are not a joined causal flood-disease dataset."
+}

@@ -1,8 +1,7 @@
-from pathlib import Path
-
 import pandas as pd
 import streamlit as st
 
+from public_evidence_db import load_public_evidence
 from risk_engine import load_priors, load_rules
 from ui_common import (
     GAP_PATH,
@@ -12,8 +11,6 @@ from ui_common import (
     render_assessment_status,
 )
 
-
-PUBLIC_DATA_DIR = Path(__file__).resolve().parents[1] / "data"
 
 st.title("参数与科研依据")
 render_assessment_status()
@@ -28,25 +25,19 @@ public_tab, basis_tab, parameter_tab, rule_tab, gap_tab = st.tabs(
 )
 
 with public_tab:
-    catalog = pd.read_csv(
-        PUBLIC_DATA_DIR / "public_evidence_catalog_v0.1.csv"
-    )
-    flood_case = pd.read_csv(
-        PUBLIC_DATA_DIR / "public_flood_case_maize_v0.1.csv"
-    )
-    case_metrics = pd.read_csv(
-        PUBLIC_DATA_DIR / "public_case_metrics_v0.1.csv"
-    )
-    survival = pd.read_csv(
-        PUBLIC_DATA_DIR / "public_waterlogging_survival_maize_v0.1.csv"
-    )
-    disease_progress = pd.read_csv(
-        PUBLIC_DATA_DIR / "public_disease_progress_maize_v0.1.csv"
-    )
+    catalog = load_public_evidence("dataset_catalog")
+    flood_case = load_public_evidence("flood_ndvi_case")
+    case_metrics = load_public_evidence("flood_case_metrics")
+    survival = load_public_evidence("waterlogging_survival")
+    disease_progress = load_public_evidence("disease_progress")
 
     st.info(
         "公开案例用于展示可追溯的外源证据。不同试验的作物、地点、变量和尺度"
         "并不一致，因此本系统不把它们拟合成一个“洪涝导致病害”的因果系数。"
+    )
+    st.caption(
+        "存储层：随应用发布的只读SQLite证据库。"
+        "当前不持久保存用户上传、田块观测或农户敏感数据。"
     )
     metric_cols = st.columns(4)
     imported_count = catalog["integration_status"].str.startswith("已导入").sum()

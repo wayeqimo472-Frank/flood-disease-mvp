@@ -35,7 +35,7 @@ st.sidebar.markdown(
     """,
     unsafe_allow_html=True,
 )
-st.sidebar.caption("多区域案例版 v0.7.1")
+st.sidebar.caption("多区域案例版 v0.8.1")
 
 case_ids = available_case_ids()
 default_index = case_ids.index(DEFAULT_CASE_ID) if DEFAULT_CASE_ID in case_ids else 0

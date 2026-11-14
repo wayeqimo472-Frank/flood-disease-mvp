@@ -113,16 +113,16 @@ $env:FLOOD_APP_CASE_ID="us_corn_belt_cscap_2011_2015"
 
 美国案例的 `risk_model` 为 `monitoring_only`，页面会明确显示“仅监测（无本地定量校准）”，不会借用河南参数生成风险分级。
 
-数据库默认位置：
+数据库默认位置（随项目目录，由 `storage.py` 的 `DATA_DIR` 解析）：
 
 ```text
-D:\360MoveData\Users\Lenovo\Desktop\大创项目\flood_disease_mvp\data\app.db
+data/app.db
 ```
 
-如需把数据库放到其他 D 盘目录，可在启动前设置：
+如需把数据库放到其他位置，可在启动前设置（示例为自定义目录）：
 
 ```powershell
-$env:FLOOD_APP_DB_PATH="D:\APP\flood_disease\app.db"
+$env:FLOOD_APP_DB_PATH="D:\flood_disease_data\app.db"
 ```
 
 数据库包含：
@@ -134,7 +134,11 @@ $env:FLOOD_APP_DB_PATH="D:\APP\flood_disease\app.db"
 - `plot_geometries`：FTW 预测或现场测绘的地块几何。
 - `plot_flood_metrics`：遥感推算的地块淹没比例、洪水起止和退水日。
 
-当前数据库已预载一个美国案例外部观测批次：168条，案例ID为 `us_corn_belt_cscap_2011_2015`。计算历史为空。
+本仓库 `data/app.db` 当前的实际状态（随是否运行导入脚本而变）：
+
+- `field_observations=0`、`external_records=0`：**未预载**任何外部观测批次。旧版 README 写的“已预载 168 条”“历史为空”指的是另一份 20.7 MB 的数据库副本，与本仓库默认库不是同一个文件；两份库不做合并，各自保留。
+- 预载方式：先运行 `tools/import_public_data.py`（写入 `external_datasets`/`external_records`），再在“田块数据”页上传 `case_packs/us_corn_belt_cscap_2011_2015/processed/observations_v0.6.csv`（168 条美国案例田块观测，写入 `import_batches`/`field_observations`）。
+- `assessment_runs=1`：计算历史**非空**（演示记录），随实际使用增长。
 
 美国案例数据由 [tools/build_us_cscap_case.py](tools/build_us_cscap_case.py) 从USDA原始工作簿重建。原始工作簿MD5已核验，处理结果包含：
 

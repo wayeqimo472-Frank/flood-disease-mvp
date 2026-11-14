@@ -1,6 +1,7 @@
 import pandas as pd
 import streamlit as st
 
+from simulation_evidence import load_summary
 from ui_common import (
     DATA_COMPLETENESS_LABELS,
     WINDOW_STATUS_LABELS,
@@ -55,6 +56,42 @@ st.dataframe(windows_df, hide_index=True, width="stretch")
 st.write(f"**当前病害处置窗口：** {result.disease_window.split(': ', 1)[1]}")
 st.write(f"**巡查计划：** {result.monitoring_plan}")
 st.caption(f"病害窗口的精确天数：{result.disease_window_precise_days}")
+
+with st.expander("APSIM 排水时限参考（模型仿真，非本地预测）", expanded=False):
+    simulation = load_summary()
+    reference = simulation[
+        [
+            "timing",
+            "drainage_hold_days",
+            "ponding_days",
+            "simulated_yield_kg_ha",
+            "observed_yield_kg_ha",
+            "simulated_yield_relative_to_control_pct",
+        ]
+    ].rename(
+        columns={
+            "timing": "淹水阶段",
+            "drainage_hold_days": "关闭排水并补水天数",
+            "ponding_days": "模拟积水天数",
+            "simulated_yield_kg_ha": "模拟产量kg/ha",
+            "observed_yield_kg_ha": "验证试验观测kg/ha",
+            "simulated_yield_relative_to_control_pct": "模拟产量较对照%",
+        }
+    )
+    st.warning(
+        "这组结果来自APSIM官方验证情景，只用于提示排水延误的敏感性，"
+        "不自动替换当前田块输入，也不计算河南本地产量损失。"
+    )
+    st.dataframe(reference, hide_index=True, width="stretch")
+    st.write(
+        "- 4天处理：早期和后期模拟产量分别较对照下降约28.5%和28.8%。"
+    )
+    st.write(
+        "- 8天处理：早期和后期模拟产量分别较对照下降约47.0%和45.8%。"
+    )
+    st.caption(
+        "因此，当前决策仍以尽快排水为优先；上述百分比只属于验证情景的模型结果。"
+    )
 
 st.subheader("判断边界")
 known_col, unknown_col = st.columns(2, gap="large")

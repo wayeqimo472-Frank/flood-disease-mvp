@@ -1,0 +1,6 @@
+simulation_name,year,treatment,timing,flood_start,drainage_hold_days,water_application_mm_day,ponding_days,max_surface_ponding_mm,max_wet_root_fraction,min_excess_water_factor,cumulative_excess_water_stress,max_lai,max_biomass_kg_ha,simulated_yield_kg_ha,observed_yield_kg_ha,simulated_yield_relative_to_control_pct,observed_yield_relative_to_control_pct,simulation_minus_observed_pct,evidence_level
+Exp4_1991_WL_control,1991,control,对照,,0,0,0,0.0,0.098,1.0,0.0,4.193,20011.59,11841.77,12270.4,0.0,0.0,-3.49,simulated_validation
+Exp4_1991_WL_early_4d,1991,early_4d,早期淹水,1991-06-12,4,100,8,164.023,0.999,0.205,6.502,3.071,15093.12,8463.69,6702.4,-28.53,-45.38,26.28,simulated_validation
+Exp4_1991_WL_early_8d,1991,early_8d,早期淹水,1991-06-12,8,100,12,164.023,0.999,0.204,9.665,2.344,11809.62,6280.19,6256.0,-46.97,-49.02,0.39,simulated_validation
+Exp4_1991_WL_late_4d,1991,late_4d,后期淹水,1991-07-01,4,100,8,163.722,0.977,0.292,5.316,2.925,13701.46,8436.91,6299.2,-28.75,-48.66,33.94,simulated_validation
+Exp4_1991_WL_late_8d,1991,late_8d,后期淹水,1991-07-01,8,100,12,164.082,0.98,0.279,8.375,2.637,10995.86,6420.45,6304.0,-45.78,-48.62,1.85,simulated_validation

@@ -113,6 +113,12 @@ class AppSmokeTests(unittest.TestCase):
         )
         self.assertEqual(app.metric[0].value, "模型仿真")
         self.assertEqual(app.metric[1].value, "5 个")
+        self.assertTrue(
+            any("河南漯河 2021 边界情景" in item.value for item in app.subheader)
+        )
+        self.assertTrue(
+            any("定量未校准" in item.value or "不是ZYY432或DK517" in item.value for item in app.warning)
+        )
 
     def test_risk_page_renders_without_exception(self) -> None:
         app = self._risk_app()

@@ -1,7 +1,13 @@
 import pandas as pd
 import streamlit as st
 
-from simulation_evidence import load_daily, load_manifest, load_summary
+from simulation_evidence import (
+    load_daily,
+    load_luohe_manifest,
+    load_luohe_pilot,
+    load_manifest,
+    load_summary,
+)
 from ui_common import render_assessment_status
 
 
@@ -146,6 +152,79 @@ with chart_2:
     st.line_chart(stress)
 st.markdown("**LAI 与地上生物量**")
 st.line_chart(lai)
+
+st.subheader("河南漯河 2021 边界情景")
+st.warning(
+    "这组模拟使用了论文报告的真实地点、砂壤土、密度和水深下限，"
+    "但品种映射为APSIM代理参数，属于定性预实验，不是ZYY432或DK517的参数校准。"
+)
+luohe = load_luohe_pilot()
+luohe_manifest = load_luohe_manifest()
+medium = luohe.loc[luohe["ks_mm_day"] == 75].copy()
+proxy_labels = {"zyy432": "代理A", "dk517": "代理B"}
+treatment_labels = {
+    "immediate": "立即排水",
+    "delayed_3d": "延迟3天",
+    "no_active_drainage": "不主动排水",
+}
+medium["情景"] = medium.apply(
+    lambda row: (
+        f"{proxy_labels[row['cultivar_proxy']]}·"
+        f"{treatment_labels[row['treatment']]}"
+    ),
+    axis=1,
+)
+medium["品种代理"] = medium["cultivar_proxy"].map(proxy_labels)
+medium["处理"] = medium["treatment"].map(treatment_labels)
+comparison = medium.set_index("情景")[
+    ["simulated_yield_kg_ha", "observed_yield_kg_ha"]
+].rename(
+    columns={
+        "simulated_yield_kg_ha": "APSIM代理模拟",
+        "observed_yield_kg_ha": "论文观测",
+    }
+)
+st.bar_chart(comparison, horizontal=True)
+st.dataframe(
+    medium[
+        [
+            "品种代理",
+            "处理",
+            "simulated_yield_kg_ha",
+            "observed_yield_kg_ha",
+            "simulated_immediate_vs_delayed_pct",
+            "observed_immediate_vs_delayed_pct",
+        ]
+    ].rename(
+        columns={
+            "simulated_yield_kg_ha": "模拟产量kg/ha",
+            "observed_yield_kg_ha": "论文观测kg/ha",
+            "simulated_immediate_vs_delayed_pct": "模拟立即排水优势%",
+            "observed_immediate_vs_delayed_pct": "观测立即排水优势%",
+        }
+    ),
+    hide_index=True,
+    width="stretch",
+)
+st.caption(
+    "方向检验通过：两种代理均显示立即排水高于延迟3天。"
+    "但模拟优势为10.2%—15.9%，低于观测的21.1%—21.8%；"
+    "不主动排水情景也未复现绝产，因此暂不进入本地风险算法。"
+)
+with st.expander("漯河预实验的输入与限制", expanded=False):
+    st.write(
+        f"- 站点：{luohe_manifest['site']['latitude']}°N，"
+        f"{luohe_manifest['site']['longitude']}°E，"
+        f"海拔{luohe_manifest['site']['elevation_m']} m。"
+    )
+    st.write(
+        f"- 降雨：{luohe_manifest['event']['start']} 至 "
+        f"{luohe_manifest['event']['end']}，累计"
+        f"{luohe_manifest['event']['rain_mm']:.2f} mm。"
+    )
+    st.write(f"- 水深边界：{luohe_manifest['forcing_interpretation']}")
+    st.write(f"- 土壤：{luohe_manifest['soil']}")
+    st.write(f"- 作物：{luohe_manifest['crop']['proxy_warning']}")
 
 with st.expander("数据来源与使用边界", expanded=False):
     st.write(f"- 验证模型：{manifest['validation_model_url']}")

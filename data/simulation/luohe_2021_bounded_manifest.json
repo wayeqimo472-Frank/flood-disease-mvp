@@ -1,0 +1,56 @@
+{
+  "dataset_id": "luohe_2021_bounded_proxy",
+  "status": "qualitative_direction_passed_quantitative_calibration_not_supported",
+  "site": {
+    "latitude": 33.59,
+    "longitude": 113.82,
+    "elevation_m": 72.31,
+    "reported_soil_type": "sandy loam"
+  },
+  "event": {
+    "start": "2021-07-18",
+    "end": "2021-07-21",
+    "rain_mm": 185.6,
+    "reported_mean_water_depth": ">100 mm"
+  },
+  "forcing_interpretation": "A 100 mm shallow-water-table boundary was imposed while the field was under the reconstructed flood. This represents the reported lower bound of mean water depth, not APSIM surface ponding.",
+  "weather": "NASA POWER 0.5 x 0.625 degree daily grid at the reported site coordinate; the four-day event pattern was scaled to the published 185.60 mm total.",
+  "soil": "ISRIC SoilGrids support point 33.60N, 113.80E because the exact site coordinate returned null. Sand, silt, clay, bulk density, organic carbon and -33/-1500 kPa water contents were used; hydraulic conductivity remained a 25/75/200 mm/day scenario range.",
+  "crop": {
+    "reported_varieties": [
+      "ZYY432",
+      "DK517"
+    ],
+    "reported_density_plants_m2": 8.25,
+    "proxy_warning": "The paper does not provide APSIM parameters, sowing date or row spacing. APSIM DeKalb models are used only as two process proxies and are not identified as the real varieties."
+  },
+  "weather_file_sha256": "75f5f1b45d83bfc349055a0b47fa449c711557074a390ab5351f7624ec73e11d",
+  "observed_yields_kg_ha": {
+    "ZYY432": {
+      "immediate": 6710,
+      "delayed_3d": 5540,
+      "control": 0
+    },
+    "DK517": {
+      "immediate": 7780,
+      "delayed_3d": 6390,
+      "control": 0
+    }
+  },
+  "source_files": {
+    "不同渍涝灾害应对措施对夏玉米长势与产量的影响_全文PDF.pdf": "7bde5d976027a10ba2d0894250c0035004513ee1201d10ad431d9f1c139beafc",
+    "不同渍涝灾害应对措施对夏玉米长势与产量的影响_数据提取.csv": "8242dce89a449fb2f3a8da4b477ae2cc144744c63018a6f3d4650cdf16811ad1"
+  },
+  "extraction_caveats": [
+    "The extraction CSV has no cultivar column for Table 2 yield components.",
+    "The extraction CSV repeats the two CK rows because cultivar identity was lost.",
+    "Yield means and treatment contrasts were manually cross-checked against Table 2 and the text.",
+    "Plot replication count and error-bar definition are not reported."
+  ],
+  "not_for": [
+    "品种参数认定",
+    "河南通用产量预测",
+    "替代田间试验",
+    "证明洪涝导致病害"
+  ]
+}

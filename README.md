@@ -32,7 +32,7 @@
 - `simulation_evidence.py`：读取明确标记为 `simulated_validation` 的 APSIM 汇总和逐日输出。
 - `pages/7_simulation.py`：展示 APSIM 官方玉米涝渍验证情景及使用边界。
 - `scripts/export_apsim_lizaso.py`：从本地 APSIM 输出重建网页使用的仿真汇总和逐日数据。
-- `data/simulation/`：1991年5个APSIM验证情景的汇总、逐日数据和来源清单。
+- `data/simulation/`：1991年5个APSIM验证情景，以及2021年漯河边界的18个代理情景、来源和限制清单。
 - `batch_io.py`：田块观测CSV模板、校验、批量计算和结果导出。
 - `tests/test_risk_engine.py`：典型情景自检。
 - `tests/test_app.py`：页面冒烟测试。
@@ -89,6 +89,7 @@
 - 总览页显示最近计算历史，计算结果与案例包版本可追溯。
 - 数据拼接页展示美国 CSCAP、公开案例、ICASA 字段映射、田块 GeoJSON 和 SAR 地块指标接口。
 - APSIM 虚拟实验页展示4天和8天、早期和后期淹水情景下的积水、胁迫、LAI、生物量、模拟产量和验证试验观测产量。
+- 漯河2021边界情景使用论文报告的站点、砂壤土、密度和“水深超过10 cm”下限；两品种仅使用APSIM代理参数，定性方向通过但定量未校准。
 
 ## 案例包与数据库
 
@@ -170,3 +171,4 @@ $env:FLOOD_APP_DB_PATH="D:\APP\flood_disease\app.db"
 - FTW 和 SAR 当前以独立数据接口接入，不把大型模型、遥感瓦片或 PyTorch 依赖打包进 Streamlit。
 - 遥感边界和淹没比例统一标记为 `remote_sensed`，不能替代现场水深、实际退水时间或田间病情。
 - APSIM 输出统一标记为 `simulated_validation`，不能自动填补河南田块缺失值，也不能预测南方锈病发生或严重度。
+- 漯河代理情景只用于验证排水延误的方向，不进入本地风险算法，也不代表ZYY432或DK517的真实品种参数。

@@ -21,7 +21,6 @@ import csv
 import io
 import os
 import re
-import sqlite3
 import sys
 import unittest
 from pathlib import Path
@@ -35,7 +34,6 @@ MATRIX_CSV = CARDS_DIR / "source_matrix_v0.1.csv"
 AUDIT_MD = CARDS_DIR / "module_audit_v0.1.md"
 SIM_CSV = REPO / "data" / "simulation" / "lizaso_maize_1991_summary.csv"
 README_MD = REPO / "README.md"
-REPO_DB = REPO / "data" / "app.db"
 
 # Aliases used inside source_matrix_v0.1.csv reference_location, and the
 # Chinese keywords this module has to recognise. They are written as
@@ -46,9 +44,6 @@ AUDIT_MD_ALIAS = "\u5ba1\u8ba1.md"
 YES = "\u662f"
 NO = "\u5426"
 NOT_CITED = "\u8bc1\u636e\u5361\u672a\u5f15\u7528"
-PRELOADED = "\u5df2\u9884\u8f7d"
-NOT_PRELOADED = "\u672a\u9884\u8f7d"
-HISTORY_EMPTY = "\u8ba1\u7b97\u5386\u53f2\u4e3a\u7a7a"
 PP_UNIT = "\u4e2a\u767e\u5206\u70b9"
 MISS_RATE = "\u6f0f\u62a5"
 DB_HEADING = "\u6570\u636e\u5e93\u9ed8\u8ba4\u4f4d\u7f6e"
@@ -365,27 +360,19 @@ class EvidenceCardTests(unittest.TestCase):
             "personal absolute path in README",
         )
 
-    def test_only_the_repository_database_is_read(self) -> None:
+    def test_database_is_project_relative_and_not_tracked(self) -> None:
         default_db = default_database_path()
         self.assertEqual(
-            REPO_DB.resolve(),
+            (REPO / "data" / "app.db").resolve(),
             default_db,
             "the default database is not the repository one",
         )
-        self.assertTrue(REPO_DB.exists(), "repository database missing")
-        self.assertLess(
-            REPO_DB.stat().st_size,
-            5 * 1024 * 1024,
-            "repository database looks like the large external copy",
-        )
+        self.assertIn("data/app.db", read_text(REPO / ".gitignore"))
         source = Path(__file__).read_text(encoding="utf-8")
         for statement in FORBIDDEN_SQL:
             self.assertTrue(
                 statement not in source, "the check must stay read-only"
             )
-        self.assertTrue(
-            "mode=ro" in source, "the database must be opened read-only"
-        )
 
     # --- 8. remediation table structure ----------------------------------
 
@@ -432,37 +419,10 @@ class EvidenceCardTests(unittest.TestCase):
                 default_db, (REPO / stated).resolve(), "README path mismatch"
             )
 
-        counts = {}
-        connection = sqlite3.connect("file:%s?mode=ro" % REPO_DB.as_posix(), uri=True)
-        try:
-            for table in ("field_observations", "external_records", "assessment_runs"):
-                counts[table] = connection.execute(
-                    'SELECT COUNT(*) FROM "%s"' % table
-                ).fetchone()[0]
-        finally:
-            connection.close()
-
-        for table in ("field_observations", "external_records"):
-            match = re.search(r"`%s=(\d+)`" % table, self.readme)
-            self.assertTrue(match is not None, "README does not state %s" % table)
-            self.assertEqual(
-                counts[table],
-                int(match.group(1)),
-                "README %s count differs from the database" % table,
-            )
-        if counts["field_observations"] == 0:
-            self.assertTrue(
-                NOT_PRELOADED in self.readme, "README must say the database is not preloaded"
-            )
-        else:
-            self.assertTrue(
-                PRELOADED in self.readme, "README must say the database is preloaded"
-            )
-        if counts["assessment_runs"] > 0:
-            self.assertTrue(
-                HISTORY_EMPTY not in self.readme,
-                "README claims an empty history while the database has runs",
-            )
+        self.assertIn("data/app.db", self.readme)
+        self.assertIn("\u672c\u4ed3\u5e93\u4e0d\u63d0\u4ea4", self.readme)
+        self.assertIn("\u9996\u6b21\u542f\u52a8\u65f6\u81ea\u52a8\u521b\u5efa", self.readme)
+        self.assertNotIn("\u5df2\u9884\u8f7d168\u6761", self.readme)
 
 
 def percent_value(token: str) -> float:

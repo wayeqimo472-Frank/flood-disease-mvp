@@ -136,9 +136,9 @@ $env:FLOOD_APP_DB_PATH="D:\flood_disease_data\app.db"
 
 本仓库 `data/app.db` 当前的实际状态（随是否运行导入脚本而变）：
 
-- `field_observations=0`、`external_records=0`：**未预载**任何外部观测批次。旧版 README 写的“已预载 168 条”“历史为空”指的是另一份 20.7 MB 的数据库副本，与本仓库默认库不是同一个文件；两份库不做合并，各自保留。
+- 本仓库不提交 `data/app.db`：数据库首次启动时自动创建，初始为空。是否已有田块、外部观测或计算记录取决于本机实际使用；旧版 README 写的“已预载 168 条”指的是另一份 20.7 MB 的数据库副本，与本仓库默认库不是同一个文件。
 - 预载方式：先运行 `tools/import_public_data.py`（写入 `external_datasets`/`external_records`），再在“田块数据”页上传 `case_packs/us_corn_belt_cscap_2011_2015/processed/observations_v0.6.csv`（168 条美国案例田块观测，写入 `import_batches`/`field_observations`）。
-- `assessment_runs=1`：计算历史**非空**（演示记录），随实际使用增长。
+- `assessment_runs` 不是固定值：从空库开始，随本机提交的风险计算增长。
 
 美国案例数据由 [tools/build_us_cscap_case.py](tools/build_us_cscap_case.py) 从USDA原始工作簿重建。原始工作簿MD5已核验，处理结果包含：
 

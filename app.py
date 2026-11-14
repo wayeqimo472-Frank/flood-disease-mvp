@@ -91,6 +91,12 @@ navigation = st.navigation(
         ],
         "科研依据": [
             st.Page(
+                "pages/7_simulation.py",
+                title="APSIM 虚拟实验",
+                icon="🧪",
+                url_path="simulation",
+            ),
+            st.Page(
                 "pages/5_evidence.py",
                 title="参数与科研依据",
                 icon="📚",

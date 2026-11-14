@@ -49,6 +49,13 @@ class AppSmokeTests(unittest.TestCase):
         ).run(timeout=20)
         return app
 
+    def _simulation_app(self) -> AppTest:
+        app = self._app()
+        app.switch_page(
+            str(PROJECT_DIR / "pages" / "7_simulation.py")
+        ).run(timeout=20)
+        return app
+
     def _cards(self, app: AppTest) -> list[str]:
         markup = next(
             item.value for item in app.markdown if "result-metrics" in item.value
@@ -96,6 +103,16 @@ class AppSmokeTests(unittest.TestCase):
         self.assertTrue(
             any("FTW 代码许可为 MIT" in item.value for item in app.caption)
         )
+
+    def test_apsim_page_labels_simulated_output(self) -> None:
+        app = self._simulation_app()
+        self.assertFalse(app.exception)
+        self.assertEqual(app.title[0].value, "APSIM 虚拟实验")
+        self.assertTrue(
+            any("不是田间实测" in item.value for item in app.warning)
+        )
+        self.assertEqual(app.metric[0].value, "模型仿真")
+        self.assertEqual(app.metric[1].value, "5 个")
 
     def test_risk_page_renders_without_exception(self) -> None:
         app = self._risk_app()
@@ -256,6 +273,9 @@ class AppSmokeTests(unittest.TestCase):
         ).run(timeout=20)
         self.assertFalse(app.exception)
         self.assertTrue(any("明水7天" in item.value for item in app.caption))
+        self.assertTrue(
+            any("APSIM 排水时限参考" in item.label for item in app.expander)
+        )
 
         app.switch_page(str(PROJECT_DIR / "pages" / "2_risk.py")).run(timeout=20)
         self.assertEqual(app.number_input[0].value, 7.0)

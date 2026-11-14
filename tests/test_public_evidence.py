@@ -11,13 +11,30 @@ sys.path.insert(0, str(PROJECT_DIR))
 
 class PublicEvidenceTests(unittest.TestCase):
     def test_one_acre_summary_is_present(self) -> None:
-        source = (
-            PROJECT_DIR.parent
-            / "additional data"
-            / "raw_data"
+        relative_source = (
+            Path("raw_data")
             / "one_acre_fund_maize_survey_2016_2022"
             / "One_Acre_Fund_MEL_maize_survey_data_2016-2022.csv"
         )
+        source = next(
+            (
+                candidate / relative_source
+                for candidate in (
+                    PROJECT_DIR.parent / "additional data",
+                    PROJECT_DIR.parent.parent
+                    / "360MoveData"
+                    / "Users"
+                    / "Lenovo"
+                    / "Desktop"
+                    / "大创项目"
+                    / "additional data",
+                )
+                if (candidate / relative_source).is_file()
+            ),
+            None,
+        )
+        if source is None:
+            self.skipTest("本地 One Acre Fund 原始CSV未随仓库提供")
         frame = pd.read_csv(source)
         self.assertEqual(len(frame), 14773)
         self.assertEqual(int((frame["water_excess"] & frame["disease"]).sum()), 43)

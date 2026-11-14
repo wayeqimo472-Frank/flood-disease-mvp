@@ -1,0 +1,26 @@
+{
+  "dataset_id": "apsim_lizaso_maize_1991_waterlogging",
+  "evidence_level": "simulated_validation",
+  "description": "APSIM official maize flooding validation scenario, rerun locally with additional waterlogging diagnostics.",
+  "model": "APSIM 2026.11.8146.0",
+  "validation_model_url": "https://github.com/APSIMInitiative/ApsimX/blob/master/Tests/Validation/Maize/MaizeLizaso.apsimx",
+  "weather_url": "https://github.com/APSIMInitiative/ApsimX/blob/master/Tests/Validation/Maize/Lizaso.met",
+  "observation_url": "https://github.com/APSIMInitiative/ApsimX/blob/master/Tests/Validation/Maize/LizasoObs.xlsx",
+  "yield_unit_source": "g/m2 multiplied by 10 to kg/ha",
+  "inputs_sha256": {
+    "MaizeLizaso_waterlogging.apsimx": "1ebe960a9419ee7bce6b08a0a457c12f5a0f1ea3d56b97983fd81c8bfe13f939",
+    "Lizaso.met": "a5d5c936f28fa9845beae91b9fe432212b8ece55feba64e9082af0c506460a0f",
+    "LizasoObs.xlsx": "8bb1e92487511634336b9a8682c37f6f766e1feefa0cb65efab0a096e28fd428",
+    "MaizeLizaso_waterlogging.Report_Day.csv": "55b2d7ee38e37038e4c452fe7f487e99bdd98c8d25007cecdcd6d553abbfacaf",
+    "MaizeLizaso_waterlogging.Report_Harvest.csv": "a3f73b81faf7ec3f3bed4d03e994acfb225552665eaf6a3033b7c20a004fa53e",
+    "MaizeLizaso.Harvest.csv": "2c286c37b19b879d15f8f72347d5625496cc70e9562cdc4e0973fba34c588106"
+  },
+  "scenario_count": 5,
+  "daily_row_count": 1825,
+  "not_for": [
+    "河南本地定量校准",
+    "南方锈病预测",
+    "替代田块实测数据",
+    "直接估计农户田块产量损失"
+  ]
+}

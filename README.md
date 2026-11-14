@@ -28,7 +28,11 @@
 - `risk_engine.py`：规则型风险与干预窗口计算核心。
 - `app.py`：Streamlit 导航入口。
 - `ui_common.py`：共享标签、情景状态、结果卡片和安全提示。
-- `pages/`：项目总览、风险筛查、干预窗口、田块数据、科研依据、数据拼接六个页面。
+- `pages/`：项目总览、风险筛查、干预窗口、田块数据、APSIM 虚拟实验、科研依据、数据拼接七个页面。
+- `simulation_evidence.py`：读取明确标记为 `simulated_validation` 的 APSIM 汇总和逐日输出。
+- `pages/7_simulation.py`：展示 APSIM 官方玉米涝渍验证情景及使用边界。
+- `scripts/export_apsim_lizaso.py`：从本地 APSIM 输出重建网页使用的仿真汇总和逐日数据。
+- `data/simulation/`：1991年5个APSIM验证情景的汇总、逐日数据和来源清单。
 - `batch_io.py`：田块观测CSV模板、校验、批量计算和结果导出。
 - `tests/test_risk_engine.py`：典型情景自检。
 - `tests/test_app.py`：页面冒烟测试。
@@ -84,6 +88,7 @@
 - 田块数据页可重新载入数据库中的历史批次，并下载原始文件和计算结果；
 - 总览页显示最近计算历史，计算结果与案例包版本可追溯。
 - 数据拼接页展示美国 CSCAP、公开案例、ICASA 字段映射、田块 GeoJSON 和 SAR 地块指标接口。
+- APSIM 虚拟实验页展示4天和8天、早期和后期淹水情景下的积水、胁迫、LAI、生物量、模拟产量和验证试验观测产量。
 
 ## 案例包与数据库
 
@@ -164,3 +169,4 @@ $env:FLOOD_APP_DB_PATH="D:\APP\flood_disease\app.db"
 - 美国案例不输出定量风险，原因是公开数据没有形成同一田块的洪涝—病害连续时序。
 - FTW 和 SAR 当前以独立数据接口接入，不把大型模型、遥感瓦片或 PyTorch 依赖打包进 Streamlit。
 - 遥感边界和淹没比例统一标记为 `remote_sensed`，不能替代现场水深、实际退水时间或田间病情。
+- APSIM 输出统一标记为 `simulated_validation`，不能自动填补河南田块缺失值，也不能预测南方锈病发生或严重度。

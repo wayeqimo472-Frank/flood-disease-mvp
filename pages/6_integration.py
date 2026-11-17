@@ -23,6 +23,7 @@ from storage import (
     save_plot_flood_metrics,
     save_plot_geometries,
 )
+from ui_components import page_header
 from ui_common import CASE_CONFIG, CASE_NAME, render_assessment_status
 
 
@@ -37,7 +38,11 @@ US_VALIDATION_PATH = (
 PUBLIC_REGISTER_PATH = PROJECT_DIR / "data" / "public_dataset_register_v0.2.csv"
 
 
-st.title("数据拼接与公开案例")
+page_header(
+    "数据拼接与公开案例",
+    "连接标准字段、田块几何、遥感指标和公开证据，同时保留来源边界。",
+    meta=[CASE_NAME, "ICASA · GeoJSON · SAR"],
+)
 render_assessment_status()
 st.caption(f"当前案例：{CASE_NAME}")
 st.info(

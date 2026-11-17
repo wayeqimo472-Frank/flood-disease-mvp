@@ -228,27 +228,7 @@ def has_current_state() -> bool:
 
 
 def render_assessment_status() -> None:
-    st.markdown(
-        """
-        <style>
-        .status-pill {
-            display: inline-block;
-            padding: 0.2rem 0.65rem;
-            border-radius: 999px;
-            font-size: 0.78rem;
-            font-weight: 600;
-            background: #e8f5e9;
-            color: #1b5e20;
-        }
-        .status-pill.empty {
-            background: #f1f3f4;
-            color: #5f6368;
-        }
-        </style>
-        """,
-        unsafe_allow_html=True,
-    )
-    with st.container(border=True):
+    with st.container(border=True, key="assessment-status"):
         title_col, badge_col = st.columns([4, 1])
         title_col.markdown("**当前评估状态**")
         if not has_current_state():
@@ -289,47 +269,16 @@ def result_cards(result) -> list[tuple[str, str]]:
 def render_metric_cards(cards: list[tuple[str, str]]) -> None:
     cards_html = "".join(
         (
-            '<div class="result-metric">'
+            '<div class="result-metric'
+            f'{" result-metric-primary" if index == 1 else ""}">'
             f'<div class="result-metric-label">{escape(label)}</div>'
             f'<div class="result-metric-value">{escape(str(value))}</div>'
             "</div>"
         )
-        for label, value in cards
+        for index, (label, value) in enumerate(cards)
     )
     st.markdown(
-        f"""
-        <style>
-        .result-metrics {{
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 0.75rem 1rem;
-            margin: 0.2rem 0 0.8rem;
-        }}
-        .result-metric {{
-            min-width: 0;
-            padding: 0.15rem 0.3rem 0.4rem 0;
-        }}
-        .result-metric-label {{
-            margin-bottom: 0.35rem;
-            font-size: 0.875rem;
-            line-height: 1.4;
-            opacity: 0.72;
-        }}
-        .result-metric-value {{
-            font-size: clamp(1.3rem, 2.2vw, 1.75rem);
-            font-weight: 600;
-            line-height: 1.22;
-            white-space: normal;
-            overflow: visible;
-            overflow-wrap: anywhere;
-            text-overflow: clip;
-        }}
-        @media (max-width: 700px) {{
-            .result-metrics {{ grid-template-columns: repeat(2, minmax(0, 1fr)); }}
-        }}
-        </style>
-        <div class="result-metrics">{cards_html}</div>
-        """,
+        f'<div class="result-metrics" role="group">{cards_html}</div>',
         unsafe_allow_html=True,
     )
 

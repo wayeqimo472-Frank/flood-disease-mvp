@@ -2,7 +2,9 @@ import pandas as pd
 import streamlit as st
 
 from simulation_evidence import load_summary
+from ui_components import page_header, render_window_cards
 from ui_common import (
+    CASE_NAME,
     DATA_COMPLETENESS_LABELS,
     WINDOW_STATUS_LABELS,
     current_source_label,
@@ -14,11 +16,19 @@ from ui_common import (
 )
 
 
-st.title("干预窗口分析")
+page_header(
+    "干预窗口分析",
+    "围绕排水、巡查、诊断和防治四个动作，查看当前情景下的时间与安全边界。",
+    meta=[CASE_NAME, "当前已提交情景"],
+)
 render_assessment_status()
 if not has_current_state():
     st.info("请先提交一次风险情景，再查看对应干预窗口。")
-    st.page_link("pages/2_risk.py", label="进入风险情景筛查", icon="🌽")
+    st.page_link(
+        "pages/2_risk.py",
+        label="进入风险情景筛查",
+        icon=":material/monitoring:",
+    )
     st.stop()
 
 result = st.session_state.current_result
@@ -40,6 +50,18 @@ render_metric_cards(
 render_priority_notice(result)
 render_safety_notices(result)
 
+st.subheader("四段干预窗口")
+render_window_cards(
+    [
+        {
+            "window": item.window,
+            "status": WINDOW_STATUS_LABELS.get(item.status, item.status),
+            "action": item.action,
+            "evidence": item.evidence,
+        }
+        for item in result.windows
+    ]
+)
 windows_df = pd.DataFrame(
     [
         {
@@ -51,8 +73,8 @@ windows_df = pd.DataFrame(
         for item in result.windows
     ]
 )
-st.subheader("四段干预窗口")
-st.dataframe(windows_df, hide_index=True, width="stretch")
+with st.expander("查看可排序明细表", expanded=False):
+    st.dataframe(windows_df, hide_index=True, width="stretch")
 st.write(f"**当前病害处置窗口：** {result.disease_window.split(': ', 1)[1]}")
 st.write(f"**巡查计划：** {result.monitoring_plan}")
 st.caption(f"病害窗口的精确天数：{result.disease_window_precise_days}")

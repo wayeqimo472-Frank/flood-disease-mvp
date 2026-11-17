@@ -15,11 +15,16 @@ from storage import (
     load_raw_batch,
     save_import_batch,
 )
+from ui_components import page_header, render_supporting_media
 from ui_common import CASE_CONFIG, CASE_PACK, DISEASE_LABELS, render_assessment_status
 
 
 initialize_database()
-st.title("田块数据管理")
+page_header(
+    "田块数据管理",
+    "逐行记录田块观测，保留缺失值，并将有效结果写入本地数据库。",
+    meta=[CASE_PACK.name, "CSV / SQLite"],
+)
 render_assessment_status()
 st.caption(
     "每行代表一个田块在某次观测时点的记录。空单元格保留为未知，不按0处理；"
@@ -33,6 +38,7 @@ st.caption(
     "当前仍是单用户、无登录模式；页面切换保留当前上传，数据库保存每次不同内容的导入批次。"
     "相同文件按SHA256自动去重，不重复入库。"
 )
+render_supporting_media()
 if st.button("创建本地数据库备份"):
     try:
         backup_path = create_backup()

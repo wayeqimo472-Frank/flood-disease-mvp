@@ -2,10 +2,12 @@ import pandas as pd
 import streamlit as st
 
 from risk_engine import assess
+from ui_components import page_header
 from ui_common import (
     BASELINE_LABELS,
     CULTIVAR_LABELS,
     CULTIVAR_NOTES,
+    CASE_NAME,
     CUSTOM_SCENARIO,
     DATA_COMPLETENESS_LABELS,
     DEFAULT_PRESET,
@@ -29,8 +31,11 @@ from ui_common import (
 )
 
 
-st.title("风险情景筛查")
-st.caption("选择情景并输入当前田块信息，生成证据约束下的筛查结果。")
+page_header(
+    "风险情景筛查",
+    "选择情景并输入当前田块信息，生成证据约束下的筛查结果。",
+    meta=[CASE_NAME, "输入修改后需按 Enter 或移出输入框"],
+)
 
 if "risk_preset" not in st.session_state:
     st.session_state.risk_preset = st.session_state.get("current_preset", DEFAULT_PRESET)
@@ -368,4 +373,8 @@ with st.expander("查看本次已提交输入与判断边界", expanded=False):
     for item in result.unknown_evidence:
         st.write(f"- {item}")
 
-st.page_link("pages/3_intervention.py", label="查看完整干预窗口分析", icon="⏱")
+st.page_link(
+    "pages/3_intervention.py",
+    label="查看完整干预窗口分析",
+    icon=":material/schedule:",
+)

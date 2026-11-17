@@ -282,6 +282,12 @@ class AppSmokeTests(unittest.TestCase):
         self.assertTrue(
             any("APSIM 排水时限参考" in item.label for item in app.expander)
         )
+        windows = next(
+            item.value
+            for item in app.dataframe
+            if {"窗口", "状态", "建议动作", "证据"} <= set(item.value.columns)
+        )
+        self.assertEqual(len(windows), 4)
 
         app.switch_page(str(PROJECT_DIR / "pages" / "2_risk.py")).run(timeout=20)
         self.assertEqual(app.number_input[0].value, 7.0)

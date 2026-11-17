@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-17T16:00:00+08:00",
+  "title": "Design System: Field Atlas Decision Desk",
+  "extensions": {
+    "colorMeta": {
+      "canvas": {"role": "neutral", "displayName": "Mineral Canvas", "canonical": "#E8EBE4"},
+      "panel": {"role": "neutral", "displayName": "Warm Survey Paper", "canonical": "#F7F6F1"},
+      "ink": {"role": "neutral", "displayName": "Field Ink", "canonical": "#18211B"},
+      "forest": {"role": "secondary", "displayName": "Deep Field Green", "canonical": "#244632"},
+      "lime": {"role": "primary", "displayName": "Signal Lime", "canonical": "#A8D53F"},
+      "lime-hover": {"role": "primary", "displayName": "Born Lime", "canonical": "#C0EB4F"},
+      "sidebar": {"role": "neutral", "displayName": "Mineral Rail", "canonical": "#E0E5DC"},
+      "scrollbar": {"role": "neutral", "displayName": "Survey Scroll", "canonical": "#9FAD9B"}
+    },
+    "typographyMeta": {
+      "display": {"displayName": "Page Display", "purpose": "Page titles only."},
+      "headline": {"displayName": "Section Headline", "purpose": "Section and hero headings."},
+      "body": {"displayName": "Operational Body", "purpose": "Form labels, explanations, evidence prose, and controls."}
+    },
+    "shadows": [
+      {"name": "survey-lift", "value": "0 22px 60px rgba(27, 47, 32, 0.09)", "purpose": "Major image-led modules."},
+      {"name": "module-lift", "value": "0 12px 34px rgba(27, 47, 32, 0.065)", "purpose": "Status, form-group, and route modules."}
+    ],
+    "motion": [
+      {"name": "ease-out", "value": "cubic-bezier(0.23, 1, 0.32, 1)", "purpose": "Hover and press feedback."}
+    ],
+    "breakpoints": [
+      {"name": "mobile", "value": "720px"},
+      {"name": "compact", "value": "900px"},
+      {"name": "tablet", "value": "1180px"}
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The single lime-backed next action.",
+      "html": "<button class=\"ds-btn-primary\">开始风险筛查 →</button>",
+      "css": ".ds-btn-primary{min-height:42px;padding:9px 16px;border:0;border-radius:14px;background:#A8D53F;color:#18211B;font:700 14px 'Segoe UI Variable Text','Microsoft YaHei UI',sans-serif;transition:background-color 160ms cubic-bezier(0.23,1,0.32,1),transform 160ms cubic-bezier(0.23,1,0.32,1)}.ds-btn-primary:hover{background:#C0EB4F}.ds-btn-primary:active{transform:scale(.975)}.ds-btn-primary:focus-visible{outline:2px solid #244632;outline-offset:3px}"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "A quiet paper action for secondary operations.",
+      "html": "<button class=\"ds-btn-secondary\">查看证据</button>",
+      "css": ".ds-btn-secondary{min-height:42px;padding:9px 16px;border:1px solid rgba(61,91,67,.17);border-radius:14px;background:#FFFEFA;color:#244632;font:680 14px 'Segoe UI Variable Text','Microsoft YaHei UI',sans-serif}.ds-btn-secondary:hover{background:#F0F3EA}.ds-btn-secondary:focus-visible{outline:2px solid #244632;outline-offset:3px}"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "description": "A paper control with a complete-control focus ring.",
+      "html": "<label class=\"ds-field\"><span>指标来源</span><input value=\"sentinel1_sar_worker\"></label>",
+      "css": ".ds-field{display:grid;gap:7px;color:#657166;font:600 13px 'Segoe UI Variable Text','Microsoft YaHei UI',sans-serif}.ds-field input{height:44px;padding:0 14px;border:0;border-radius:13px;background:#FFFEFA;color:#18211B;box-shadow:0 8px 22px rgba(27,47,32,.045);font:400 15px 'Segoe UI Variable Text','Microsoft YaHei UI',sans-serif}.ds-field input:focus{outline:0;box-shadow:0 8px 22px rgba(27,47,32,.045),0 0 0 3px rgba(168,213,63,.32)}"
+    },
+    {
+      "name": "Metric Module",
+      "kind": "card",
+      "refersTo": "module",
+      "description": "A soft status module; the priority variant uses deep field green.",
+      "html": "<div class=\"ds-metric\"><span>处置优先级</span><strong>中–高</strong></div>",
+      "css": ".ds-metric{min-width:180px;padding:18px;border-radius:20px;background:#F7F6F1;box-shadow:0 12px 34px rgba(27,47,32,.065);color:#18211B}.ds-metric span{display:block;color:#657166;font:680 12px 'Segoe UI Variable Text','Microsoft YaHei UI',sans-serif}.ds-metric strong{display:block;margin-top:8px;font:730 19px 'Segoe UI Variable Text','Microsoft YaHei UI',sans-serif}"
+    },
+    {
+      "name": "Scope Chip",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "Compact case and evidence metadata.",
+      "html": "<span class=\"ds-chip\">河南夏玉米 2026</span>",
+      "css": ".ds-chip{display:inline-flex;align-items:center;min-height:30px;padding:4px 11px;border:1px solid rgba(55,84,61,.14);border-radius:999px;background:rgba(247,246,241,.76);color:#244632;font:680 12px 'Segoe UI Variable Text','Microsoft YaHei UI',sans-serif}"
+    },
+    {
+      "name": "Image Hero",
+      "kind": "custom",
+      "description": "The overview chapter opener with field photography and one next action.",
+      "html": "<section class=\"ds-hero\"><div><b>从一块田开始</b><p>建立可追溯的风险判断</p><button>开始风险筛查 →</button></div></section>",
+      "css": ".ds-hero{min-height:360px;display:flex;align-items:center;padding:36px;border-radius:30px;background:linear-gradient(90deg,rgba(20,42,28,.9),rgba(20,42,28,.2)),#5f7755;color:#fff;box-shadow:0 22px 60px rgba(27,47,32,.09)}.ds-hero b{font:720 34px 'Segoe UI Variable Text','Microsoft YaHei UI',sans-serif}.ds-hero p{margin:8px 0 24px;font:400 15px 'Segoe UI Variable Text','Microsoft YaHei UI',sans-serif}.ds-hero button{padding:9px 16px;border:0;border-radius:14px;background:#A8D53F;color:#18211B;font-weight:700}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Living Field Atlas",
+    "overview": "The interface treats each assessment as a route through a working field atlas. Large agricultural imagery establishes the operating context, while pale survey-like surfaces hold exact inputs, evidence states, and intervention boundaries.",
+    "keyCharacteristics": [
+      "Pale mineral canvas with warm paper-like modules.",
+      "Electric lime reserved for selection and the next action.",
+      "Large rounded asymmetric modules.",
+      "Agricultural photography explicitly labeled as atmosphere.",
+      "Dense evidence presented with calm spacing and visible boundaries."
+    ],
+    "rules": [
+      {"name": "The One Route Rule", "body": "Lime carries selection and the recommended next action; it is not scattered decoration.", "section": "colors"}
+    ],
+    "dos": [
+      "Do use Signal Lime for the current route and primary actions.",
+      "Do label atmosphere photography as non-measurement material.",
+      "Do keep missing values and evidence boundaries adjacent to results."
+    ],
+    "donts": [
+      "Don't return to a dark sidebar or generic Streamlit default surface.",
+      "Don't use lime as decoration on inactive objects.",
+      "Don't let agricultural imagery imply local observation or forecast data."
+    ]
+  }
+}

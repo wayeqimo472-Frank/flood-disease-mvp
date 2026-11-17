@@ -3,9 +3,9 @@ from pathlib import Path
 import unittest
 
 
-THEME_CSS = (
-    Path(__file__).resolve().parents[1] / "assets" / "app.css"
-).read_text(encoding="utf-8")
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+THEME_CSS = (PROJECT_ROOT / "assets" / "app.css").read_text(encoding="utf-8")
+UI_COMPONENTS = (PROJECT_ROOT / "ui_components.py").read_text(encoding="utf-8")
 
 
 class ThemeRegressionTests(unittest.TestCase):
@@ -32,6 +32,14 @@ class ThemeRegressionTests(unittest.TestCase):
             THEME_CSS,
             r'\[data-testid="stExpander"\]\s*>\s*details\s*\{',
         )
+
+    def test_interface_images_are_local_and_present(self) -> None:
+        image_dir = PROJECT_ROOT / "static" / "images"
+        for name in ("corn-field.jpg", "field-aerial.jpg", "farmland.jpg"):
+            image = image_dir / name
+            self.assertTrue(image.is_file(), name)
+            self.assertGreater(image.stat().st_size, 10_000)
+            self.assertIn(f"app/static/images/{name}", UI_COMPONENTS)
 
 
 if __name__ == "__main__":

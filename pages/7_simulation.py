@@ -4,10 +4,15 @@ import streamlit as st
 from luohe_simulation import load_manifest as load_luohe_manifest
 from luohe_simulation import load_pilot as load_luohe_pilot
 from simulation_evidence import load_daily, load_manifest, load_summary
+from ui_components import page_header
 from ui_common import render_assessment_status
 
 
-st.title("APSIM 虚拟实验")
+page_header(
+    "APSIM 虚拟实验",
+    "查看模型验证情景、排水敏感性以及漯河代理边界，不作为本地实测预测。",
+    meta=["模型仿真", "APSIM 2026.11"],
+)
 render_assessment_status()
 
 st.warning(

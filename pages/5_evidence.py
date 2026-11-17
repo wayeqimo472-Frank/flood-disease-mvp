@@ -2,6 +2,7 @@ import pandas as pd
 import streamlit as st
 
 from risk_engine import load_priors, load_rules
+from ui_components import page_header
 from ui_common import (
     CASE_CONFIG,
     CASE_NAME,
@@ -18,7 +19,11 @@ from ui_common import (
 )
 
 
-st.title("参数与科研依据")
+page_header(
+    "参数与科研依据",
+    "把本次判断使用的参数、规则、证据等级和数据缺口放在同一处复核。",
+    meta=[CASE_NAME, "只读证据索引"],
+)
 render_assessment_status()
 st.caption(f"当前案例：{CASE_NAME}")
 if CASE_CONFIG.get("validation_status"):

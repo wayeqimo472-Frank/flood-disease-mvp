@@ -4,6 +4,7 @@ import streamlit as st
 from storage import list_assessment_runs
 from ui_common import (
     CASE_CONFIG,
+    CASE_NAME,
     DATA_COMPLETENESS_LABELS,
     ENVIRONMENT_METRIC_LABELS,
     current_source_label,
@@ -11,17 +12,21 @@ from ui_common import (
     render_assessment_status,
     render_metric_cards,
 )
-
-
-st.title("项目总览")
-st.caption("多区域案例 · 涝渍暴露 · 作物状态 · 病害证据 · 干预窗口")
-st.info(
-    "系统依据已提交的涝渍暴露、作物状态和病害证据生成情景筛查结果，"
-    "并说明缺失数据带来的判断限制。"
+from ui_components import (
+    page_header,
+    render_boundary_module,
+    render_overview_hero,
+    render_quick_routes,
+    section_header,
 )
-render_assessment_status()
 
-st.subheader("最近一次计算摘要")
+
+page_header(
+    "项目总览",
+    "从涝渍暴露、作物状态到病害证据与干预窗口，保留每一步判断的边界。",
+    meta=[CASE_NAME, "单用户本地决策台"],
+)
+
 if has_current_state():
     result = st.session_state.current_result
     inputs = st.session_state.current_inputs
@@ -33,7 +38,28 @@ if has_current_state():
         if inputs["waterlog_days"] is None
         else f"{inputs['waterlog_days']:g}天"
     )
-    st.caption(f"情景来源：{current_source_label()}")
+    source_label = current_source_label()
+    risk_label = result.risk_label
+else:
+    result = None
+    source_label = "当前会话暂无提交"
+    risk_label = "等待评估"
+    flood_value = "缺失"
+    waterlog_value = "缺失"
+
+render_overview_hero(
+    has_result=result is not None,
+    source_label=source_label,
+    risk_label=risk_label,
+    flood_value=flood_value,
+    waterlog_value=waterlog_value,
+)
+
+render_assessment_status()
+
+section_header("最近一次计算摘要", "只看当前已经提交的输入，不把缺失值当作零。")
+if result is not None:
+    st.caption(f"情景来源：{source_label}")
     render_metric_cards(
         [
             ("数据完整性", DATA_COMPLETENESS_LABELS[result.data_completeness]),
@@ -47,48 +73,15 @@ if has_current_state():
 else:
     st.caption("暂无记录：当前会话还没有提交过风险情景。")
 
-st.subheader("主要功能")
-col_1, col_2, col_3, col_4 = st.columns(4, gap="large")
-with col_1:
-    st.markdown("### 风险情景筛查")
-    st.write("录入涝渍暴露、病害证据和环境条件，生成当前筛查摘要。")
-    st.page_link(
-        "pages/2_risk.py",
-        label="进入风险筛查",
-        icon=":material/monitoring:",
-    )
-with col_2:
-    st.markdown("### 干预窗口分析")
-    st.write("查看排水、巡查、诊断和防治四段窗口及安全限制。")
-    st.page_link(
-        "pages/3_intervention.py",
-        label="查看干预窗口",
-        icon=":material/schedule:",
-    )
-with col_3:
-    st.markdown("### 田块数据管理")
-    st.write("下载模板、校验并批量计算田块观测记录。")
-    st.page_link(
-        "pages/4_field_data.py",
-        label="管理田块数据",
-        icon=":material/dataset:",
-    )
-with col_4:
-    st.markdown("### 数据拼接")
-    st.write("查看公开案例、ICASA 映射、田块几何和 SAR 指标接口。")
-    st.page_link(
-        "pages/6_integration.py",
-        label="查看拼接层",
-        icon=":material/hub:",
-    )
+section_header("进入工作流", "四个入口对应从判断到数据、证据的完整路径。")
+render_quick_routes()
 
-st.subheader("当前数据边界")
-for limitation in CASE_CONFIG.get("overview_limits", []):
-    st.write(f"- {limitation}")
+section_header("当前数据边界", "这些限制会随结果一起保留。")
+render_boundary_module(CASE_CONFIG.get("overview_limits", []))
 
 recent_runs = list_assessment_runs(limit=5)
 if recent_runs:
-    st.subheader("本地计算历史")
+    section_header("本地计算历史", "最近的提交记录保存在当前本地数据库中。")
     st.dataframe(
         pd.DataFrame(recent_runs).rename(
             columns={

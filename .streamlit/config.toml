@@ -1,21 +1,22 @@
 [theme]
 base = "light"
-primaryColor = "#2F6B4F"
-backgroundColor = "#F4F6F1"
-secondaryBackgroundColor = "#FFFFFF"
-textColor = "#1D2B22"
+primaryColor = "#A8D53F"
+backgroundColor = "#E8EBE4"
+secondaryBackgroundColor = "#F7F6F1"
+textColor = "#18211B"
 font = "sans serif"
-baseRadius = "14px"
-buttonRadius = "10px"
-borderColor = "#DCE5DA"
-dataframeBorderColor = "#DCE5DA"
-dataframeHeaderBackgroundColor = "#EDF2EA"
-showWidgetBorder = true
+baseRadius = "18px"
+buttonRadius = "14px"
+borderColor = "#CFD8CB"
+dataframeBorderColor = "#D4DDD0"
+dataframeHeaderBackgroundColor = "#E6EAE1"
+showWidgetBorder = false
 showSidebarBorder = false
 
 [server]
 headless = true
 address = "127.0.0.1"
+enableStaticServing = true
 
 [browser]
 gatherUsageStats = false

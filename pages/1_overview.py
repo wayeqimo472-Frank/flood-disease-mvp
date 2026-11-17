@@ -50,21 +50,37 @@ else:
 st.subheader("主要功能")
 col_1, col_2, col_3, col_4 = st.columns(4, gap="large")
 with col_1:
-    st.markdown("**风险情景筛查**")
+    st.markdown("### 风险情景筛查")
     st.write("录入涝渍暴露、病害证据和环境条件，生成当前筛查摘要。")
-    st.page_link("pages/2_risk.py", label="进入风险筛查", icon="🌽")
+    st.page_link(
+        "pages/2_risk.py",
+        label="进入风险筛查",
+        icon=":material/monitoring:",
+    )
 with col_2:
-    st.markdown("**干预窗口分析**")
+    st.markdown("### 干预窗口分析")
     st.write("查看排水、巡查、诊断和防治四段窗口及安全限制。")
-    st.page_link("pages/3_intervention.py", label="查看干预窗口", icon="⏱")
+    st.page_link(
+        "pages/3_intervention.py",
+        label="查看干预窗口",
+        icon=":material/schedule:",
+    )
 with col_3:
-    st.markdown("**田块数据管理**")
+    st.markdown("### 田块数据管理")
     st.write("下载模板、校验并批量计算田块观测记录。")
-    st.page_link("pages/4_field_data.py", label="管理田块数据", icon="📁")
+    st.page_link(
+        "pages/4_field_data.py",
+        label="管理田块数据",
+        icon=":material/dataset:",
+    )
 with col_4:
-    st.markdown("**数据拼接**")
+    st.markdown("### 数据拼接")
     st.write("查看公开案例、ICASA 映射、田块几何和 SAR 指标接口。")
-    st.page_link("pages/6_integration.py", label="查看拼接层", icon="🛰")
+    st.page_link(
+        "pages/6_integration.py",
+        label="查看拼接层",
+        icon=":material/hub:",
+    )
 
 st.subheader("当前数据边界")
 for limitation in CASE_CONFIG.get("overview_limits", []):

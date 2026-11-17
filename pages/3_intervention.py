@@ -18,7 +18,11 @@ st.title("干预窗口分析")
 render_assessment_status()
 if not has_current_state():
     st.info("请先提交一次风险情景，再查看对应干预窗口。")
-    st.page_link("pages/2_risk.py", label="进入风险情景筛查", icon="🌽")
+    st.page_link(
+        "pages/2_risk.py",
+        label="进入风险情景筛查",
+        icon=":material/monitoring:",
+    )
     st.stop()
 
 result = st.session_state.current_result

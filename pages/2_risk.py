@@ -368,4 +368,8 @@ with st.expander("查看本次已提交输入与判断边界", expanded=False):
     for item in result.unknown_evidence:
         st.write(f"- {item}")
 
-st.page_link("pages/3_intervention.py", label="查看完整干预窗口分析", icon="⏱")
+st.page_link(
+    "pages/3_intervention.py",
+    label="查看完整干预窗口分析",
+    icon=":material/schedule:",
+)

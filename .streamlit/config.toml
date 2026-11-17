@@ -1,0 +1,21 @@
+[theme]
+base = "light"
+primaryColor = "#2F6B4F"
+backgroundColor = "#F4F6F1"
+secondaryBackgroundColor = "#FFFFFF"
+textColor = "#1D2B22"
+font = "sans serif"
+baseRadius = "14px"
+buttonRadius = "10px"
+borderColor = "#DCE5DA"
+dataframeBorderColor = "#DCE5DA"
+dataframeHeaderBackgroundColor = "#EDF2EA"
+showWidgetBorder = true
+showSidebarBorder = false
+
+[server]
+headless = true
+address = "127.0.0.1"
+
+[browser]
+gatherUsageStats = false

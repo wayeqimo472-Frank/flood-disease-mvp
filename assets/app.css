@@ -161,9 +161,13 @@ a:hover {
     color: var(--app-forest-900);
 }
 
-:focus-visible {
+/* Streamlit focuses an inner BaseWeb input; a global outline shows as a stray bar. */
+button:focus-visible,
+a:focus-visible,
+summary:focus-visible,
+[role="button"]:focus-visible {
     outline: 2px solid var(--app-forest-700) !important;
-    outline-offset: 3px !important;
+    outline-offset: 2px !important;
 }
 
 [data-testid="stSidebar"] {
@@ -404,8 +408,14 @@ div[data-testid="stVerticalBlockBorderWrapper"] {
 }
 
 [data-testid="stExpander"] {
+    overflow: visible;
+    border: 0;
+    background: transparent;
+}
+
+[data-testid="stExpander"] > details {
     overflow: hidden;
-    border: 1px solid var(--app-line);
+    border-color: var(--app-line);
     border-radius: 12px;
     background: rgba(255, 255, 255, 0.72);
 }
@@ -535,6 +545,11 @@ textarea::placeholder {
 [data-testid="stFileUploaderDropzone"]:hover {
     border-color: var(--app-forest-700);
     background: var(--app-forest-050);
+}
+
+[data-testid="stFileUploaderDropzone"]:focus-within {
+    border-color: var(--app-forest-700);
+    box-shadow: 0 0 0 3px var(--app-focus);
 }
 
 [data-testid="stHorizontalBlock"] {

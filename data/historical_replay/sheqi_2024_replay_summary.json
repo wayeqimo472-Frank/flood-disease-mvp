@@ -1,0 +1,29 @@
+{
+  "event_id": "FLOOD-2024-07-SHEQI",
+  "location": {
+    "county": "社旗县",
+    "lat": 33.06,
+    "lon": 112.94
+  },
+  "s1_scenes_count": 5,
+  "s1_scene_dates": [
+    "2024-06-22",
+    "2024-07-16",
+    "2024-07-28",
+    "2024-08-09",
+    "2024-08-21"
+  ],
+  "peak_flood_sample_grid_01_pct": 41.73,
+  "recession_sample_grid_01_pct": 0.49,
+  "control_grid_0716_pct": 0.25,
+  "open_meteo_peak_daily_precip_mm": 62.7,
+  "open_meteo_peak_precip_date": "2024-07-16",
+  "open_meteo_july14_18_total_mm": 228.2,
+  "nasa_power_july14_18_total_mm": 235.23,
+  "replay_days": 54,
+  "mean_daily_rh90_hours": 6.28,
+  "mean_daily_dpd_physical_hours": 18.46,
+  "mean_daily_logistic_lwd_hours": 18.33,
+  "favorable_or_optimal_days": 4,
+  "boundary": "Retrospective replay uses 12-day revisit Sentinel-1A RTC sample plain grids, gridded meteorological reanalysis, and European-calibrated LWD proxy hours. It verifies pipeline coupling and timeline alignment, not parcel-level yield loss or causal infection."
+}

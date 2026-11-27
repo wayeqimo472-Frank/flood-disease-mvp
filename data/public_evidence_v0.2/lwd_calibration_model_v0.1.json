@@ -1,0 +1,97 @@
+{
+  "model_version": "lwd_proxy_calib_v0.1",
+  "training_dataset": "Italy 7-site Agromet (DOI: 10.17632/sd4b8vpvyb.1, leaf_top > 0)",
+  "training_rows": 55550,
+  "external_test_dataset": "DIVINE Granada Spain (DOI: 10.5281/zenodo.11432589)",
+  "external_test_rows": 8781,
+  "feature_names": [
+    "dew_point_depression_c",
+    "is_raining",
+    "rain_prev3h_mm",
+    "is_night"
+  ],
+  "scaler_mean": {
+    "dew_point_depression_c": 6.48712448520184,
+    "is_raining": 0.042898289828982895,
+    "rain_prev3h_mm": 0.35227722772277226,
+    "is_night": 0.45762376237623764
+  },
+  "scaler_std": {
+    "dew_point_depression_c": 5.165736538173454,
+    "is_raining": 0.20262780302498343,
+    "rain_prev3h_mm": 2.196041307556605,
+    "is_night": 0.49820101814915474
+  },
+  "intercept": 0.45348813398307153,
+  "weights": {
+    "dew_point_depression_c": -1.285993350275109,
+    "is_raining": 0.17976625312653666,
+    "rain_prev3h_mm": -0.05761752549725089,
+    "is_night": -0.15568628465086334
+  },
+  "probability_threshold": 0.6599999999999999,
+  "dpd_threshold_c": 5.75,
+  "validation_summary": {
+    "italy_loso_cv": {
+      "rh_tuned_threshold": {
+        "mean_sensitivity": 0.7556,
+        "mean_precision": 0.7898,
+        "mean_f1": 0.7001,
+        "mean_balanced_accuracy": 0.791,
+        "mean_brier_score": 0.3119
+      },
+      "dpd_physical_threshold": {
+        "mean_sensitivity": 0.7406,
+        "mean_precision": 0.8019,
+        "mean_f1": 0.6991,
+        "mean_balanced_accuracy": 0.7956,
+        "mean_brier_score": 0.3079
+      },
+      "multifeature_logistic": {
+        "mean_sensitivity": 0.7392,
+        "mean_precision": 0.7965,
+        "mean_f1": 0.6916,
+        "mean_balanced_accuracy": 0.7888,
+        "mean_brier_score": 0.2108
+      },
+      "rh90_baseline": {
+        "mean_sensitivity": 0.3471,
+        "mean_precision": 0.931,
+        "mean_f1": 0.4587,
+        "mean_balanced_accuracy": 0.6676,
+        "mean_brier_score": 0.4505
+      }
+    },
+    "spain_external": {
+      "rh90_baseline": {
+        "mean_sensitivity": 0.417,
+        "mean_precision": 0.8276,
+        "mean_f1": 0.5544,
+        "mean_balanced_accuracy": 0.7041,
+        "mean_brier_score": 0.0615
+      },
+      "multifeature_logistic": {
+        "mean_sensitivity": 0.9454,
+        "mean_precision": 0.3051,
+        "mean_f1": 0.4612,
+        "mean_balanced_accuracy": 0.8638,
+        "mean_brier_score": 0.195
+      },
+      "dpd_physical_threshold": {
+        "mean_sensitivity": 0.9596,
+        "mean_precision": 0.2889,
+        "mean_f1": 0.444,
+        "mean_balanced_accuracy": 0.8604,
+        "mean_brier_score": 0.2206
+      },
+      "rh_tuned_threshold": {
+        "mean_sensitivity": 0.9566,
+        "mean_precision": 0.2776,
+        "mean_f1": 0.4302,
+        "mean_balanced_accuracy": 0.8524,
+        "mean_brier_score": 0.2325
+      }
+    }
+  },
+  "boundary": "Calibrated meteorological proxy trained on European sites. Reduces under-detection relative to RH>=90%, but still carries cross-site error and must not be reported as measured Henan maize canopy LWD or exact infection time."
+}

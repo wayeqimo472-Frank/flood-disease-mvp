@@ -1,6 +1,6 @@
 # 农田涝渍与作物病害风险决策支持系统
 
-面向多区域和多作物情景，整理涝渍暴露、作物状态、病害证据与干预窗口。当前版本包含参数先验、风险计算核心、可切换案例包、本地 SQLite 持久化、公开数据拼接和 Streamlit 六页原型。
+面向多区域和多作物情景，整理涝渍暴露、作物状态、病害证据与干预窗口。当前版本包含参数先验、风险计算核心、可切换案例包、本地 SQLite 持久化、多要素 LWD 代理校准、社旗 2024 历史 SAR/气象回放、双轨验证规程以及 Streamlit 七页原型。
 
 当前案例包：
 
@@ -21,8 +21,15 @@
 - `data/public_dataset_register_v0.2.csv`：公开数据来源、许可、字段边界和本地状态。
 - `data/public_data_gap_matrix_v0.2.csv`：项目级P0—P2数据缺口矩阵。
 - `data/all_missing_data_v0.3.csv`：50项逐字段缺失数据总表。
-- `data/public_evidence_v0.2/`：One Acre Fund、受淹玉米试验、DIVINE和意大利LWD的整理结果。
+- `data/public_evidence_v0.2/`：One Acre Fund、受淹玉米试验、DIVINE、意大利 LWD 及多要素 LWD 校准模型与交叉验证结果。
+- `lwd_calibration.py`：露点差/VPD 物理特征、多要素 LWD 代理概率估算与缺失值安全边界。
 - `tools/build_public_evidence_v0_2.py`：公开证据文件重建脚本。
+- `tools/build_lwd_calibration.py`：意大利 7 站点留一交叉验证与西班牙 DIVINE 跨国检验脚本。
+- `tools/build_sheqi_2024_replay.py`：社旗 2024 Sentinel-1A RTC（Planetary Computer 免登录接口）与 Open-Meteo/NASA POWER 历史回放脚本。
+- `tools/gee_sentinel1_sheqi_2024.js`：Google Earth Engine 配套 Sentinel-1 淹没指标导出脚本。
+- `data/historical_replay/`：社旗 2024 样本网格 GeoJSON、SAR 淹没指标、逐日气象与 LWD 对比及 `risk_engine.py` 回放时间轴。
+- `docs/dual_track_validation_plan_v0.1.md`：双轨验证方案与上海本地小规模模拟渍水试验规程。
+- `data/local_trial_observation_template_v0.1.csv`：本地模拟渍水试验专用空白采集模板。
 - `docs/source_selection_v0.2.md`：来源取舍和证据边界。
 - `docs/ae_integration_v0.3.md`：A—E专项调研的选择性整合说明。
 - `risk_engine.py`：规则型风险与干预窗口计算核心。
@@ -83,7 +90,7 @@
 - 洪涝前病情基线、主导品种和缺口数据说明；
 - 按实际执行路径展示参数用途、使用字段、时间阈值、数值区间和限制说明。
 - 下载空白田块观测模板，上传CSV进行逐行校验和批量计算，并导出结果。
-- 五个页面通过侧边栏导航，当前评估状态始终可见；
+- 七个页面通过侧边栏导航，当前评估状态始终可见；
 - CSV上传在当前浏览器会话中保留，并写入 `data/app.db`；相同文件按 SHA256 去重；
 - 田块数据页可重新载入数据库中的历史批次，并下载原始文件和计算结果；
 - 总览页显示最近计算历史，计算结果与案例包版本可追溯。

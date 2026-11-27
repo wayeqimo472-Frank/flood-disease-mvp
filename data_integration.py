@@ -19,6 +19,7 @@ US_CSCAP_DIR = (
     / "us_corn_belt_cscap_2011_2015"
 )
 PUBLIC_EVIDENCE_V02_DIR = PROJECT_DIR / "data" / "public_evidence_v0.2"
+HISTORICAL_REPLAY_DIR = PROJECT_DIR / "data" / "historical_replay"
 ICASA_MAPPING_PATH = PROJECT_DIR / "data" / "icasa_field_mapping_v0.1.csv"
 ICASA_SOURCE_URL = "https://github.com/DSSAT/ICASA-Dictionary"
 ICASA_SOURCE_COMMIT = "2168f366b7c35ce6997c8fb0055dc259e9341ad3"
@@ -100,6 +101,16 @@ PUBLIC_V02_FILES = {
         "CC BY-NC 4.0",
         "derived",
     ),
+    "lwd_calibration_cv_metrics.csv": (
+        "多要素 LWD 代理校准交叉验证明细",
+        "CC BY-NC 4.0",
+        "derived",
+    ),
+    "lwd_calibration_summary.csv": (
+        "多要素 LWD 代理校准模型对比汇总",
+        "CC BY-NC 4.0",
+        "derived",
+    ),
 }
 
 REMOTE_PUBLIC_FILES = {
@@ -142,6 +153,27 @@ PROJECT_REGISTERS = {
     "all_missing_data_v0.3.csv": (
         "项目逐字段缺失数据总表",
         "metadata",
+    ),
+}
+
+HISTORICAL_REPLAY_FILES = {
+    "sheqi_2024_sar_flood_metrics.csv": (
+        "社旗 2024 Sentinel-1A RTC 样本格淹没指标",
+        "Copernicus Sentinel-1 RTC / Planetary Computer (CC-BY-4.0 / Open)",
+        "remote_sensed",
+        "https://planetarycomputer.microsoft.com/dataset/sentinel-1-rtc",
+    ),
+    "sheqi_2024_weather_daily.csv": (
+        "社旗 2024 历史逐日气象与 LWD 代理对比",
+        "Open-Meteo ERA5/IFS + NASA POWER (CC BY 4.0 / Open)",
+        "derived",
+        "https://open-meteo.com/en/docs/historical-weather-api",
+    ),
+    "sheqi_2024_replay_timeline.csv": (
+        "社旗 2024 历史洪涝与病害窗口回放时间轴",
+        "Project retrospective replay (mixed-open)",
+        "derived",
+        "https://github.com/wayeqimo472-Frank/flood-disease-mvp",
     ),
 }
 
@@ -201,6 +233,19 @@ def reference_sources() -> list[ReferenceSource]:
                 license="project metadata",
                 source_url="",
                 description="项目自身的公开数据登记或缺口整理。",
+            )
+        )
+    for filename, (title, license_name, evidence_level, url) in HISTORICAL_REPLAY_FILES.items():
+        sources.append(
+            ReferenceSource(
+                dataset_id=f"replay_{Path(filename).stem}",
+                title=title,
+                path=HISTORICAL_REPLAY_DIR / filename,
+                category="历史回放",
+                evidence_level=evidence_level,
+                license=license_name,
+                source_url=url,
+                description="社旗 2024 历史洪涝遥感、气象与风险窗口回放数据。",
             )
         )
     return sources

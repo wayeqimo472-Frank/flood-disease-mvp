@@ -1,6 +1,7 @@
 import sqlite3
 from datetime import datetime
 from hashlib import sha256
+from pathlib import Path
 
 import pandas as pd
 import streamlit as st
@@ -52,6 +53,12 @@ def _clear_field_upload() -> None:
     st.session_state.pop("field_upload", None)
     st.session_state.pop("field_uploader", None)
 
+LOCAL_TRIAL_TEMPLATE_PATH = (
+    Path(__file__).resolve().parents[1]
+    / "data"
+    / "local_trial_observation_template_v0.1.csv"
+)
+
 template_col, upload_col = st.columns([0.7, 1.3], gap="large")
 with template_col:
     st.download_button(
@@ -61,6 +68,15 @@ with template_col:
         mime="text/csv",
         width="stretch",
     )
+    if LOCAL_TRIAL_TEMPLATE_PATH.is_file():
+        st.download_button(
+            "下载本地模拟渍水试验模板",
+            data=LOCAL_TRIAL_TEMPLATE_PATH.read_bytes(),
+            file_name=LOCAL_TRIAL_TEMPLATE_PATH.name,
+            mime="text/csv",
+            width="stretch",
+        )
+        st.caption("本地对照/渍水处理试验流程详见 `docs/dual_track_validation_plan_v0.1.md`。")
     with st.expander("CSV字段与取值说明", expanded=False):
         disease_codes = "、".join(f"`{key}`" for key in DISEASE_LABELS)
         st.markdown(

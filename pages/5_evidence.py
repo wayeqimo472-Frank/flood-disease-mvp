@@ -7,6 +7,7 @@ from ui_common import (
     CASE_CONFIG,
     CASE_NAME,
     GAP_PATH,
+    LWD_CALIBRATION_SUMMARY_PATH,
     LWD_PROXY_SUMMARY_PATH,
     ONE_ACRE_OVERALL_SUMMARY_PATH,
     PUBLIC_ALL_MISSING_PATH,
@@ -227,6 +228,51 @@ with public_data_tab:
         hide_index=True,
         width="stretch",
     )
+    if LWD_CALIBRATION_SUMMARY_PATH.is_file():
+        st.markdown("**多要素 LWD 代理校准对比（留一站点与跨国检验）**")
+        st.caption(
+            "基于意大利 7 站点留一交叉验证（55,550 小时）和西班牙 DIVINE 跨国测试（8,781 小时），"
+            "对比 RH≥90% 基线、折内调优 RH 阈值、露点差物理阈值与多要素逻辑回归（均以平衡准确率调优阈值）。"
+            "校准模型显著降低了漏报率，但跨气候带迁移仍存在误报率差异，不替代田间 LWD 实测。"
+        )
+        lwd_cal = pd.read_csv(LWD_CALIBRATION_SUMMARY_PATH)
+        st.dataframe(
+            lwd_cal[
+                [
+                    "dataset",
+                    "validation_split",
+                    "model_name",
+                    "comparisons",
+                    "mean_sensitivity",
+                    "mean_specificity",
+                    "mean_precision",
+                    "mean_f1",
+                    "mean_balanced_accuracy",
+                    "mean_brier_score",
+                ]
+            ].rename(
+                columns={
+                    "dataset": "数据集",
+                    "validation_split": "验证方式",
+                    "model_name": "模型",
+                    "comparisons": "样本组数",
+                    "mean_sensitivity": "平均敏感度",
+                    "mean_specificity": "平均特异度",
+                    "mean_precision": "平均精确率",
+                    "mean_f1": "平均 F1",
+                    "mean_balanced_accuracy": "平均平衡准确率",
+                    "mean_brier_score": "平均 Brier",
+                }
+            ),
+            hide_index=True,
+            width="stretch",
+        )
+        chart_frame = lwd_cal.pivot(
+            index="model_name",
+            columns="dataset",
+            values="mean_balanced_accuracy",
+        )
+        st.bar_chart(chart_frame)
     public_register = pd.read_csv(PUBLIC_DATA_REGISTER_PATH)
     st.markdown("**公开数据登记**")
     st.dataframe(

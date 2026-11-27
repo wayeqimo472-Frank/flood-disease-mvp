@@ -1,0 +1,154 @@
+{
+  "type": "FeatureCollection",
+  "metadata": {
+    "case_id": "henan_maize_2026",
+    "event_id": "FLOOD-2024-07-SHEQI",
+    "note": "Regional plain sample grids for retrospective SAR replay; not surveyed farm boundaries."
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "field_id": "SHEQI_PLAIN_01",
+        "role": "flooded_sample_grid",
+        "zone": "社旗南部潘河—赵河下游低洼平原样本格 1",
+        "geometry_origin": "regional_sample_grid_not_parcel_survey"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              112.89,
+              32.85
+            ],
+            [
+              112.92,
+              32.85
+            ],
+            [
+              112.92,
+              32.88
+            ],
+            [
+              112.89,
+              32.88
+            ],
+            [
+              112.89,
+              32.85
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "field_id": "SHEQI_PLAIN_02",
+        "role": "flooded_sample_grid",
+        "zone": "社旗南部潘河—赵河下游低洼平原样本格 2",
+        "geometry_origin": "regional_sample_grid_not_parcel_survey"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              112.91,
+              32.85
+            ],
+            [
+              112.94,
+              32.85
+            ],
+            [
+              112.94,
+              32.88
+            ],
+            [
+              112.91,
+              32.88
+            ],
+            [
+              112.91,
+              32.85
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "field_id": "SHEQI_PLAIN_03",
+        "role": "flooded_sample_grid",
+        "zone": "社旗南部平原过渡样本格 3",
+        "geometry_origin": "regional_sample_grid_not_parcel_survey"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              112.89,
+              32.88
+            ],
+            [
+              112.92,
+              32.88
+            ],
+            [
+              112.92,
+              32.91
+            ],
+            [
+              112.89,
+              32.91
+            ],
+            [
+              112.89,
+              32.88
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "field_id": "SHEQI_CTRL_01",
+        "role": "control_sample_grid",
+        "zone": "社旗北部相对高地农田对照样本格",
+        "geometry_origin": "regional_sample_grid_not_parcel_survey"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              113.02,
+              33.1
+            ],
+            [
+              113.05,
+              33.1
+            ],
+            [
+              113.05,
+              33.13
+            ],
+            [
+              113.02,
+              33.13
+            ],
+            [
+              113.02,
+              33.1
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

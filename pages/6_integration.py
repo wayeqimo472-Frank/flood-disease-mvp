@@ -36,6 +36,11 @@ US_VALIDATION_PATH = (
     / "validation_summary.json"
 )
 PUBLIC_REGISTER_PATH = PROJECT_DIR / "data" / "public_dataset_register_v0.2.csv"
+REPLAY_DIR = PROJECT_DIR / "data" / "historical_replay"
+REPLAY_SUMMARY_PATH = REPLAY_DIR / "sheqi_2024_replay_summary.json"
+REPLAY_SAR_PATH = REPLAY_DIR / "sheqi_2024_sar_flood_metrics.csv"
+REPLAY_WEATHER_PATH = REPLAY_DIR / "sheqi_2024_weather_daily.csv"
+REPLAY_TIMELINE_PATH = REPLAY_DIR / "sheqi_2024_replay_timeline.csv"
 
 
 page_header(
@@ -59,8 +64,8 @@ if not datasets:
         st.success(f"已处理 {len(imported)} 个公开数据文件。")
         st.rerun()
 
-overview_tab, us_tab, public_tab, geospatial_tab = st.tabs(
-    ["数据总览", "美国玉米带", "公开案例", "地理与标准接口"]
+overview_tab, us_tab, public_tab, geospatial_tab, replay_tab = st.tabs(
+    ["数据总览", "美国玉米带", "公开案例", "地理与标准接口", "历史回放（社旗 2024）"]
 )
 
 with overview_tab:
@@ -498,3 +503,113 @@ with geospatial_tab:
         "- [farmOS](https://github.com/farmOS/farmOS)：只借鉴田块、观测、作业和资产模型；"
         "核心为 GPL，未复制代码。"
     )
+
+with replay_tab:
+    st.subheader("社旗 2024 历史洪涝 SAR 与气象窗口回放")
+    if not (
+        REPLAY_SUMMARY_PATH.is_file()
+        and REPLAY_SAR_PATH.is_file()
+        and REPLAY_WEATHER_PATH.is_file()
+        and REPLAY_TIMELINE_PATH.is_file()
+    ):
+        st.warning("当前仓库尚未生成社旗 2024 回放数据。")
+    else:
+        replay_summary = json.loads(REPLAY_SUMMARY_PATH.read_text(encoding="utf-8"))
+        sar_frame = pd.read_csv(REPLAY_SAR_PATH)
+        weather_frame = pd.read_csv(REPLAY_WEATHER_PATH)
+        timeline_frame = pd.read_csv(REPLAY_TIMELINE_PATH)
+
+        r_cols = st.columns(4)
+        r_cols[0].metric("Sentinel-1A 期数", f"{replay_summary['s1_scenes_count']} 期")
+        r_cols[1].metric(
+            "样本格峰值淹没",
+            f"{replay_summary['peak_flood_sample_grid_01_pct']:.2f}%",
+        )
+        r_cols[2].metric(
+            "对照格同期淹没",
+            f"{replay_summary['control_grid_0716_pct']:.2f}%",
+        )
+        r_cols[3].metric(
+            "日均 LWD 小时 (DPD / RH90)",
+            f"{replay_summary['mean_daily_dpd_physical_hours']:.1f} / {replay_summary['mean_daily_rh90_hours']:.1f} h",
+        )
+        st.caption(
+            "遥感来自 Microsoft Planetary Computer Sentinel-1A RTC（Relative Orbit 113，免登录公开接口）；"
+            "气象来自 Open-Meteo ERA5/IFS 并与 NASA POWER 交叉核对。"
+        )
+
+        chart_left, chart_right = st.columns(2)
+        with chart_left:
+            st.markdown("**Sentinel-1A 样本格淹没面积比例演变（%）**")
+            sar_pivot = (
+                sar_frame.pivot(
+                    index="event_date",
+                    columns="field_id",
+                    values="flooded_area_pct",
+                )
+                .sort_index()
+            )
+            st.line_chart(sar_pivot)
+            st.caption(
+                "SHEQI_PLAIN_01–03 为社旗南部潘河—赵河下游低洼平原样本格，"
+                "SHEQI_CTRL_01 为北部高地对照样本格；2024-07-16 捕获积水峰值，07-28 回落至 <1%。"
+            )
+        with chart_right:
+            st.markdown("**逐日降水量与 LWD 代理湿润小时对比**")
+            lwd_chart = weather_frame.set_index("date")[
+                ["rh90_wet_hours", "dpd_physical_wet_hours", "logistic_lwd_wet_hours"]
+            ].rename(
+                columns={
+                    "rh90_wet_hours": "RH≥90% 小时数",
+                    "dpd_physical_wet_hours": "DPD物理阈值小时数",
+                    "logistic_lwd_wet_hours": "逻辑回归代理小时数",
+                }
+            )
+            st.line_chart(lwd_chart)
+            st.caption(
+                f"7/14–18 网格再分析累计降水：Open-Meteo {replay_summary['open_meteo_july14_18_total_mm']} mm、"
+                f"NASA POWER {replay_summary['nasa_power_july14_18_total_mm']} mm（低于县站极值 870.8 mm，反映网格平滑效应）。"
+            )
+
+        st.markdown("**risk_engine.py 逐日回放时间轴与官方里程碑对齐**")
+        st.dataframe(
+            timeline_frame[
+                [
+                    "date",
+                    "crop_stage_assumed",
+                    "precip_open_meteo_mm",
+                    "mean_temp_c",
+                    "mean_rh_pct",
+                    "rh90_wet_hours",
+                    "dpd_physical_wet_hours",
+                    "risk_label",
+                    "environment_suitability",
+                    "drainage_status",
+                    "control_status",
+                    "official_milestone",
+                ]
+            ].rename(
+                columns={
+                    "date": "日期",
+                    "crop_stage_assumed": "假定生育期",
+                    "precip_open_meteo_mm": "降水mm",
+                    "mean_temp_c": "均温℃",
+                    "mean_rh_pct": "均湿%",
+                    "rh90_wet_hours": "RH90h",
+                    "dpd_physical_wet_hours": "DPD代理h",
+                    "risk_label": "处置优先级",
+                    "environment_suitability": "锈病环境适宜度",
+                    "drainage_status": "排水窗口",
+                    "control_status": "防治窗口",
+                    "official_milestone": "官方实证节点",
+                }
+            ),
+            hide_index=True,
+            width="stretch",
+            height=380,
+        )
+        st.warning(
+            "回放边界：Sentinel-1 重访间隔约 12 天，样本网格不等于农户真实地块边界，"
+            "且 LWD 代理参数来自欧洲站点校准。本回放用于验证多源接口耦合与时间线逻辑一致性，"
+            "不替代田间实测水深、真实退水日或病害流行病学因果验证。"
+        )

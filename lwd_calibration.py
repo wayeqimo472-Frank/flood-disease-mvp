@@ -39,12 +39,26 @@ DEFAULT_LWD_CV_PATH = (
     / "public_evidence_v0.2"
     / "lwd_calibration_cv_metrics.csv"
 )
+DEFAULT_LWD_RELIABILITY_PATH = (
+    PROJECT_DIR
+    / "data"
+    / "public_evidence_v0.2"
+    / "lwd_calibration_reliability_bins.csv"
+)
 
 FEATURE_COLUMNS = (
     "dew_point_depression_c",
     "is_raining",
     "rain_prev3h_mm",
     "is_night",
+)
+TEMPORAL_FEATURE_COLUMNS = (
+    "dew_point_depression_c",
+    "is_raining",
+    "rain_prev3h_mm",
+    "is_night",
+    "dpd_delta_1h",
+    "night_humid_streak_h",
 )
 ALL_FEATURE_COLUMNS = (
     "temperature_c",
@@ -56,6 +70,10 @@ ALL_FEATURE_COLUMNS = (
     "rain_prev3h_mm",
     "wind_speed_ms",
     "is_night",
+    "rh_delta_1h",
+    "dpd_delta_1h",
+    "prev_hour_rain_mm",
+    "night_humid_streak_h",
 )
 
 
@@ -130,13 +148,25 @@ def build_lwd_features(frame: pd.DataFrame) -> pd.DataFrame:
 
     out["temperature_c"] = temp
     out["rh_pct"] = rh
-    out["dew_point_depression_c"] = compute_dew_point_depression(temp, rh)
+    dpd = compute_dew_point_depression(temp, rh)
+    out["dew_point_depression_c"] = dpd
     out["vpd_kpa"] = compute_vpd_kpa(temp, rh)
     out["rain_mm"] = rain
     out["is_raining"] = (rain > 0.0).astype(float)
     out["rain_prev3h_mm"] = rain.rolling(window=3, min_periods=1).sum()
     out["wind_speed_ms"] = wind
     out["is_night"] = is_night
+    out["rh_delta_1h"] = rh.diff().fillna(0.0)
+    out["dpd_delta_1h"] = pd.Series(dpd, index=frame.index).diff().fillna(0.0)
+    out["prev_hour_rain_mm"] = rain.shift(1).fillna(0.0)
+
+    humid_night = ((is_night == 1.0) & (pd.Series(dpd, index=frame.index) <= 4.0)).to_numpy(dtype=bool)
+    streak = np.zeros(len(humid_night), dtype=float)
+    run = 0.0
+    for idx, active in enumerate(humid_night):
+        run = min(run + 1.0, 12.0) if active else 0.0
+        streak[idx] = run
+    out["night_humid_streak_h"] = pd.Series(streak, index=frame.index)
     return out
 
 
@@ -198,6 +228,86 @@ def predict_dpd_physical(
     core_missing = features["temperature_c"].isna() | features["rh_pct"].isna()
     flags = (dpd <= threshold) | (rain > 0.0)
     return np.where(core_missing.to_numpy(), False, flags)
+
+
+def predict_gleason_physical(features: pd.DataFrame) -> np.ndarray:
+    """Zero-parameter dew-wind-rain physical CART baseline (Gleason-style proxy)."""
+    rain = features["rain_mm"].fillna(0.0).to_numpy(dtype=float)
+    dpd = features["dew_point_depression_c"].to_numpy(dtype=float)
+    rh = features["rh_pct"].to_numpy(dtype=float)
+    wind = features["wind_speed_ms"].fillna(99.0).to_numpy(dtype=float)
+    night = features["is_night"].fillna(0.0).to_numpy(dtype=float)
+    core_missing = features["temperature_c"].isna() | features["rh_pct"].isna()
+    flags = (
+        (rain > 0.0)
+        | ((dpd <= 2.0) & (wind <= 2.5))
+        | ((rh >= 87.0) & (night == 1.0) & (wind <= 2.0))
+    )
+    return np.where(core_missing.to_numpy(), False, flags)
+
+
+def predict_rh_hysteresis_physical(features: pd.DataFrame) -> np.ndarray:
+    """Zero-parameter RH-slope and post-rain drying lag physical baseline."""
+    rain = features["rain_mm"].fillna(0.0).to_numpy(dtype=float)
+    prev_rain = features["prev_hour_rain_mm"].fillna(0.0).to_numpy(dtype=float)
+    rh = features["rh_pct"].to_numpy(dtype=float)
+    rh_delta = features["rh_delta_1h"].fillna(0.0).to_numpy(dtype=float)
+    core_missing = features["temperature_c"].isna() | features["rh_pct"].isna()
+    flags = (
+        (rain > 0.0)
+        | (rh >= 88.0)
+        | ((rh >= 80.0) & (rh_delta >= 3.0))
+        | ((prev_rain > 0.0) & (rh >= 75.0))
+    )
+    return np.where(core_missing.to_numpy(), False, flags)
+
+
+def compute_reliability_bins(
+    actual: np.ndarray,
+    probs: np.ndarray,
+    *,
+    n_bins: int = 10,
+) -> tuple[pd.DataFrame, float]:
+    """Compute binned reliability diagram metrics and Expected Calibration Error (ECE)."""
+    actual_arr = np.asarray(actual, dtype=float)
+    probs_arr = np.asarray(probs, dtype=float)
+    valid = np.isfinite(actual_arr) & np.isfinite(probs_arr)
+    actual_arr = actual_arr[valid]
+    probs_arr = np.clip(probs_arr[valid], 0.0, 1.0)
+    total_n = len(actual_arr)
+    edges = np.linspace(0.0, 1.0, n_bins + 1)
+    rows: list[dict[str, Any]] = []
+    ece = 0.0
+    for idx in range(n_bins):
+        low = float(edges[idx])
+        high = float(edges[idx + 1])
+        if idx == n_bins - 1:
+            mask = (probs_arr >= low) & (probs_arr <= high)
+        else:
+            mask = (probs_arr >= low) & (probs_arr < high)
+        count = int(np.sum(mask))
+        if count > 0:
+            mean_pred = float(np.mean(probs_arr[mask]))
+            obs_freq = float(np.mean(actual_arr[mask]))
+            gap = abs(obs_freq - mean_pred)
+            ece += (count / total_n) * gap
+        else:
+            mean_pred = None
+            obs_freq = None
+            gap = None
+        rows.append(
+            {
+                "bin_index": idx + 1,
+                "bin_lower": round(low, 2),
+                "bin_upper": round(high, 2),
+                "bin_center": round(0.5 * (low + high), 2),
+                "mean_predicted_prob": round(mean_pred, 4) if mean_pred is not None else None,
+                "observed_wet_freq": round(obs_freq, 4) if obs_freq is not None else None,
+                "sample_count": count,
+                "abs_calibration_gap": round(gap, 4) if gap is not None else None,
+            }
+        )
+    return pd.DataFrame(rows), float(ece)
 
 
 def estimate_lwd_hour_probability(

@@ -37,10 +37,48 @@ US_VALIDATION_PATH = (
 )
 PUBLIC_REGISTER_PATH = PROJECT_DIR / "data" / "public_dataset_register_v0.2.csv"
 REPLAY_DIR = PROJECT_DIR / "data" / "historical_replay"
-REPLAY_SUMMARY_PATH = REPLAY_DIR / "sheqi_2024_replay_summary.json"
-REPLAY_SAR_PATH = REPLAY_DIR / "sheqi_2024_sar_flood_metrics.csv"
-REPLAY_WEATHER_PATH = REPLAY_DIR / "sheqi_2024_weather_daily.csv"
-REPLAY_TIMELINE_PATH = REPLAY_DIR / "sheqi_2024_replay_timeline.csv"
+REPLAY_COMPARISON_PATH = REPLAY_DIR / "multi_event_comparison_summary.csv"
+REPLAY_EVENTS = {
+    "社旗 2024（平原内涝）": {
+        "slug": "sheqi_2024",
+        "title": "社旗 2024 历史洪涝 SAR 与气象窗口回放",
+        "sar_caption": (
+            "SHEQI_PLAIN_01–03 为社旗南部潘河—赵河下游低洼平原样本格，"
+            "SHEQI_CTRL_01 为北部高地对照样本格；2024-07-16 捕获积水峰值，07-28 回落至 <1%。"
+        ),
+        "storm_label": "7/14–18 网格再分析累计降水（对比县站极值 870.8 mm）",
+        "source_caption": (
+            "遥感来自 Microsoft Planetary Computer Sentinel-1A RTC（Relative Orbit 113，免登录公开接口）；"
+            "气象来自 Open-Meteo ERA5/IFS 并与 NASA POWER 交叉核对。"
+        ),
+    },
+    "浚县 2021（蓄滞洪区长历时）": {
+        "slug": "xunxian_2021",
+        "title": "浚县 2021 蓄滞洪区长历时 SAR 与气象窗口回放",
+        "sar_caption": (
+            "XUNXIAN_XIAOHE_S/N 与 BAISIPO_W 为卫河小河镇—白寺坡蓄滞洪区样本格，"
+            "XUNXIAN_CTRL_NE 为东北部丘陵对照格；7-27 峰值 >30%，8-20 仍有 ~9–11% 滞留积水。"
+        ),
+        "storm_label": "7/18–23 网格再分析累计降水（对比小河镇 10.81 万亩受淹背景）",
+        "source_caption": (
+            "遥感来自 Microsoft Planetary Computer Sentinel-1A RTC（Relative Orbit 40，10 期序列，免登录公开接口）；"
+            "气象来自 Open-Meteo ERA5/IFS 并与 NASA POWER 交叉核对。"
+        ),
+    },
+    "涿州 2023（蓄滞洪区＋超标准行洪）": {
+        "slug": "zhuozhou_2023",
+        "title": "涿州 2023 行洪分洪 SAR 与气象窗口回放",
+        "sar_caption": (
+            "ZHUOZHOU_LANGOUWA_SW/SE/NW 为兰沟洼蓄滞洪区样本格，"
+            "ZHUOZHOU_CTRL_NW 为北部非蓄滞洪对照格；8-05 捕获分洪峰值，8-17 迅速退水。"
+        ),
+        "storm_label": "7/29–8/02 网格再分析累计降水（对比 F046 过程平均 358.7 mm）",
+        "source_caption": (
+            "遥感来自 Microsoft Planetary Computer Sentinel-1A RTC（Relative Orbit 142，5 期序列，免登录公开接口）；"
+            "气象来自 Open-Meteo ERA5/IFS 并与 NASA POWER 交叉核对。"
+        ),
+    },
+}
 
 
 page_header(
@@ -65,7 +103,7 @@ if not datasets:
         st.rerun()
 
 overview_tab, us_tab, public_tab, geospatial_tab, replay_tab = st.tabs(
-    ["数据总览", "美国玉米带", "公开案例", "地理与标准接口", "历史回放（社旗 2024）"]
+    ["数据总览", "美国玉米带", "公开案例", "地理与标准接口", "历史回放（三案例对比）"]
 )
 
 with overview_tab:
@@ -505,38 +543,91 @@ with geospatial_tab:
     )
 
 with replay_tab:
-    st.subheader("社旗 2024 历史洪涝 SAR 与气象窗口回放")
+    st.subheader("三案例历史洪涝 SAR 与气象窗口回放（免实测公开接口复核）")
+    if REPLAY_COMPARISON_PATH.is_file():
+        comp_df = pd.read_csv(REPLAY_COMPARISON_PATH)
+        st.markdown("**跨灾害类型（平原内涝 / 蓄滞洪区长历时 / 超标准行洪）公开接口对比汇总**")
+        st.dataframe(
+            comp_df.rename(
+                columns={
+                    "event_id": "事件编号",
+                    "county": "地点（年份）",
+                    "flood_type": "洪涝模式",
+                    "s1_scenes_count": "S1期数",
+                    "peak_sample_grid": "峰值样本格",
+                    "peak_date": "峰值日期",
+                    "peak_flooded_pct": "峰值淹没%",
+                    "followup_date": "复核日期",
+                    "followup_flooded_pct": "复核淹没%",
+                    "control_peak_pct": "对照格峰值%",
+                    "reanalysis_storm_open_meteo_mm": "Open-Meteo暴雨mm",
+                    "reanalysis_storm_nasa_power_mm": "NASA POWER暴雨mm",
+                    "mean_daily_rh90_hours": "日均RH90h",
+                    "mean_daily_dpd_physical_hours": "日均DPDh",
+                    "dominant_risk_label": "主导处置优先级",
+                    "official_storm_context": "官方实证背景",
+                }
+            ),
+            hide_index=True,
+            width="stretch",
+        )
+
+    selected_event_label = st.selectbox(
+        "选择回放案例",
+        list(REPLAY_EVENTS.keys()),
+        index=0,
+    )
+    event_cfg = REPLAY_EVENTS[selected_event_label]
+    slug = event_cfg["slug"]
+    summary_path = REPLAY_DIR / f"{slug}_replay_summary.json"
+    sar_path = REPLAY_DIR / f"{slug}_sar_flood_metrics.csv"
+    weather_path = REPLAY_DIR / f"{slug}_weather_daily.csv"
+    timeline_path = REPLAY_DIR / f"{slug}_replay_timeline.csv"
+
+    st.markdown(f"### {event_cfg['title']}")
     if not (
-        REPLAY_SUMMARY_PATH.is_file()
-        and REPLAY_SAR_PATH.is_file()
-        and REPLAY_WEATHER_PATH.is_file()
-        and REPLAY_TIMELINE_PATH.is_file()
+        summary_path.is_file()
+        and sar_path.is_file()
+        and weather_path.is_file()
+        and timeline_path.is_file()
     ):
-        st.warning("当前仓库尚未生成社旗 2024 回放数据。")
+        st.warning(f"当前仓库尚未生成 {selected_event_label} 回放数据。")
     else:
-        replay_summary = json.loads(REPLAY_SUMMARY_PATH.read_text(encoding="utf-8"))
-        sar_frame = pd.read_csv(REPLAY_SAR_PATH)
-        weather_frame = pd.read_csv(REPLAY_WEATHER_PATH)
-        timeline_frame = pd.read_csv(REPLAY_TIMELINE_PATH)
+        replay_summary = json.loads(summary_path.read_text(encoding="utf-8"))
+        sar_frame = pd.read_csv(sar_path)
+        weather_frame = pd.read_csv(weather_path)
+        timeline_frame = pd.read_csv(timeline_path)
+
+        peak_pct = float(
+            replay_summary.get(
+                "peak_flooded_pct",
+                replay_summary.get("peak_flood_sample_grid_01_pct", 0.0),
+            )
+        )
+        ctrl_pct = float(
+            replay_summary.get(
+                "control_peak_pct",
+                replay_summary.get("control_grid_0716_pct", 0.0),
+            )
+        )
+        om_storm_mm = replay_summary.get(
+            "open_meteo_storm_total_mm",
+            replay_summary.get("open_meteo_july14_18_total_mm", 0.0),
+        )
+        np_storm_mm = replay_summary.get(
+            "nasa_power_storm_total_mm",
+            replay_summary.get("nasa_power_july14_18_total_mm", 0.0),
+        )
 
         r_cols = st.columns(4)
         r_cols[0].metric("Sentinel-1A 期数", f"{replay_summary['s1_scenes_count']} 期")
-        r_cols[1].metric(
-            "样本格峰值淹没",
-            f"{replay_summary['peak_flood_sample_grid_01_pct']:.2f}%",
-        )
-        r_cols[2].metric(
-            "对照格同期淹没",
-            f"{replay_summary['control_grid_0716_pct']:.2f}%",
-        )
+        r_cols[1].metric("样本格峰值淹没", f"{peak_pct:.2f}%")
+        r_cols[2].metric("高地对照同期淹没", f"{ctrl_pct:.2f}%")
         r_cols[3].metric(
             "日均 LWD 小时 (DPD / RH90)",
             f"{replay_summary['mean_daily_dpd_physical_hours']:.1f} / {replay_summary['mean_daily_rh90_hours']:.1f} h",
         )
-        st.caption(
-            "遥感来自 Microsoft Planetary Computer Sentinel-1A RTC（Relative Orbit 113，免登录公开接口）；"
-            "气象来自 Open-Meteo ERA5/IFS 并与 NASA POWER 交叉核对。"
-        )
+        st.caption(event_cfg["source_caption"])
 
         chart_left, chart_right = st.columns(2)
         with chart_left:
@@ -550,25 +641,23 @@ with replay_tab:
                 .sort_index()
             )
             st.line_chart(sar_pivot)
-            st.caption(
-                "SHEQI_PLAIN_01–03 为社旗南部潘河—赵河下游低洼平原样本格，"
-                "SHEQI_CTRL_01 为北部高地对照样本格；2024-07-16 捕获积水峰值，07-28 回落至 <1%。"
-            )
+            st.caption(event_cfg["sar_caption"])
         with chart_right:
             st.markdown("**逐日降水量与 LWD 代理湿润小时对比**")
-            lwd_chart = weather_frame.set_index("date")[
-                ["rh90_wet_hours", "dpd_physical_wet_hours", "logistic_lwd_wet_hours"]
-            ].rename(
-                columns={
-                    "rh90_wet_hours": "RH≥90% 小时数",
-                    "dpd_physical_wet_hours": "DPD物理阈值小时数",
-                    "logistic_lwd_wet_hours": "逻辑回归代理小时数",
-                }
+            lwd_rename = {
+                "rh90_wet_hours": "RH≥90% 小时数",
+                "gleason_wet_hours": "Gleason物理阈值小时数",
+                "dpd_physical_wet_hours": "DPD物理阈值小时数",
+                "logistic_lwd_wet_hours": "逻辑回归代理小时数",
+            }
+            lwd_cols = [c for c in lwd_rename if c in weather_frame.columns]
+            lwd_chart = weather_frame.set_index("date")[lwd_cols].rename(
+                columns={c: lwd_rename[c] for c in lwd_cols}
             )
             st.line_chart(lwd_chart)
             st.caption(
-                f"7/14–18 网格再分析累计降水：Open-Meteo {replay_summary['open_meteo_july14_18_total_mm']} mm、"
-                f"NASA POWER {replay_summary['nasa_power_july14_18_total_mm']} mm（低于县站极值 870.8 mm，反映网格平滑效应）。"
+                f"{event_cfg['storm_label']}：Open-Meteo {om_storm_mm} mm、"
+                f"NASA POWER {np_storm_mm} mm（反映网格再分析空间平滑效应）。"
             )
 
         st.markdown("**risk_engine.py 逐日回放时间轴与官方里程碑对齐**")

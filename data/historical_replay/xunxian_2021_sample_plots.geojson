@@ -1,0 +1,154 @@
+{
+  "type": "FeatureCollection",
+  "metadata": {
+    "case_id": "henan_maize_2026",
+    "event_id": "FLOOD-2021-07-XUNXIAN",
+    "note": "Regional sample grids for 鹤壁浚县 retrospective SAR replay; not parcel surveys."
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "field_id": "XUNXIAN_XIAOHE_S",
+        "role": "flooded_sample_grid",
+        "zone": "浚县小河镇南部蓄滞洪区农田样本格",
+        "geometry_origin": "regional_sample_grid_not_parcel_survey"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              114.42,
+              35.5
+            ],
+            [
+              114.48,
+              35.5
+            ],
+            [
+              114.48,
+              35.56
+            ],
+            [
+              114.42,
+              35.56
+            ],
+            [
+              114.42,
+              35.5
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "field_id": "XUNXIAN_XIAOHE_N",
+        "role": "flooded_sample_grid",
+        "zone": "浚县小河镇北部蓄滞洪区农田样本格",
+        "geometry_origin": "regional_sample_grid_not_parcel_survey"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              114.42,
+              35.56
+            ],
+            [
+              114.48,
+              35.56
+            ],
+            [
+              114.48,
+              35.62
+            ],
+            [
+              114.42,
+              35.62
+            ],
+            [
+              114.42,
+              35.56
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "field_id": "XUNXIAN_BAISIPO_W",
+        "role": "flooded_sample_grid",
+        "zone": "浚县白寺坡西蓄滞洪区农田样本格",
+        "geometry_origin": "regional_sample_grid_not_parcel_survey"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              114.48,
+              35.56
+            ],
+            [
+              114.54,
+              35.56
+            ],
+            [
+              114.54,
+              35.62
+            ],
+            [
+              114.48,
+              35.62
+            ],
+            [
+              114.48,
+              35.56
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "field_id": "XUNXIAN_CTRL_NE",
+        "role": "control_sample_grid",
+        "zone": "浚县东北部未受淹高地农田对照样本格",
+        "geometry_origin": "regional_sample_grid_not_parcel_survey"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              114.6,
+              35.72
+            ],
+            [
+              114.66,
+              35.72
+            ],
+            [
+              114.66,
+              35.78
+            ],
+            [
+              114.6,
+              35.78
+            ],
+            [
+              114.6,
+              35.72
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

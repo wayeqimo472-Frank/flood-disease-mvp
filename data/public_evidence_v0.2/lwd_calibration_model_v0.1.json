@@ -31,14 +31,24 @@
   },
   "probability_threshold": 0.6599999999999999,
   "dpd_threshold_c": 5.75,
+  "ece_summary": {
+    "Italy 7-site": {
+      "multifeature_logistic": 0.053,
+      "multifeature_temporal_logistic": 0.0645
+    },
+    "DIVINE Spain": {
+      "multifeature_logistic": 0.3198,
+      "multifeature_temporal_logistic": 0.3138
+    }
+  },
   "validation_summary": {
     "italy_loso_cv": {
-      "rh_tuned_threshold": {
-        "mean_sensitivity": 0.7556,
-        "mean_precision": 0.7898,
-        "mean_f1": 0.7001,
-        "mean_balanced_accuracy": 0.791,
-        "mean_brier_score": 0.3119
+      "multifeature_temporal_logistic": {
+        "mean_sensitivity": 0.7602,
+        "mean_precision": 0.7988,
+        "mean_f1": 0.7121,
+        "mean_balanced_accuracy": 0.8022,
+        "mean_brier_score": 0.2085
       },
       "dpd_physical_threshold": {
         "mean_sensitivity": 0.7406,
@@ -47,12 +57,33 @@
         "mean_balanced_accuracy": 0.7956,
         "mean_brier_score": 0.3079
       },
+      "rh_tuned_threshold": {
+        "mean_sensitivity": 0.7556,
+        "mean_precision": 0.7898,
+        "mean_f1": 0.7001,
+        "mean_balanced_accuracy": 0.791,
+        "mean_brier_score": 0.3119
+      },
       "multifeature_logistic": {
         "mean_sensitivity": 0.7392,
         "mean_precision": 0.7965,
         "mean_f1": 0.6916,
         "mean_balanced_accuracy": 0.7888,
         "mean_brier_score": 0.2108
+      },
+      "rh_hysteresis_physical": {
+        "mean_sensitivity": 0.4794,
+        "mean_precision": 0.9074,
+        "mean_f1": 0.5726,
+        "mean_balanced_accuracy": 0.7264,
+        "mean_brier_score": 0.3895
+      },
+      "gleason_cart_physical": {
+        "mean_sensitivity": 0.4368,
+        "mean_precision": 0.918,
+        "mean_f1": 0.5363,
+        "mean_balanced_accuracy": 0.7086,
+        "mean_brier_score": 0.4109
       },
       "rh90_baseline": {
         "mean_sensitivity": 0.3471,
@@ -63,12 +94,19 @@
       }
     },
     "spain_external": {
-      "rh90_baseline": {
-        "mean_sensitivity": 0.417,
-        "mean_precision": 0.8276,
-        "mean_f1": 0.5544,
-        "mean_balanced_accuracy": 0.7041,
-        "mean_brier_score": 0.0615
+      "rh_hysteresis_physical": {
+        "mean_sensitivity": 0.794,
+        "mean_precision": 0.6163,
+        "mean_f1": 0.6938,
+        "mean_balanced_accuracy": 0.872,
+        "mean_brier_score": 0.0642
+      },
+      "multifeature_temporal_logistic": {
+        "mean_sensitivity": 0.9536,
+        "mean_precision": 0.3036,
+        "mean_f1": 0.4604,
+        "mean_balanced_accuracy": 0.8662,
+        "mean_brier_score": 0.1893
       },
       "multifeature_logistic": {
         "mean_sensitivity": 0.9454,
@@ -90,8 +128,22 @@
         "mean_f1": 0.4302,
         "mean_balanced_accuracy": 0.8524,
         "mean_brier_score": 0.2325
+      },
+      "gleason_cart_physical": {
+        "mean_sensitivity": 0.6965,
+        "mean_precision": 0.7051,
+        "mean_f1": 0.7005,
+        "mean_balanced_accuracy": 0.8335,
+        "mean_brier_score": 0.0545
+      },
+      "rh90_baseline": {
+        "mean_sensitivity": 0.417,
+        "mean_precision": 0.8276,
+        "mean_f1": 0.5544,
+        "mean_balanced_accuracy": 0.7041,
+        "mean_brier_score": 0.0615
       }
     }
   },
-  "boundary": "Calibrated meteorological proxy trained on European sites. Reduces under-detection relative to RH>=90%, but still carries cross-site error and must not be reported as measured Henan maize canopy LWD or exact infection time."
+  "boundary": "Calibrated meteorological proxy trained on European sites. Reduces under-detection relative to RH>=90% and zero-parameter physical baselines, but probability calibration degrades across climates (see ece_summary) and must not be reported as measured Henan maize canopy LWD or exact infection time."
 }

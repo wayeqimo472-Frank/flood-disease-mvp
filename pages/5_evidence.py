@@ -9,6 +9,7 @@ from ui_common import (
     GAP_PATH,
     LWD_CALIBRATION_SUMMARY_PATH,
     LWD_PROXY_SUMMARY_PATH,
+    LWD_RELIABILITY_PATH,
     ONE_ACRE_OVERALL_SUMMARY_PATH,
     PUBLIC_ALL_MISSING_PATH,
     PUBLIC_DATA_REGISTER_PATH,
@@ -232,8 +233,7 @@ with public_data_tab:
         st.markdown("**多要素 LWD 代理校准对比（留一站点与跨国检验）**")
         st.caption(
             "基于意大利 7 站点留一交叉验证（55,550 小时）和西班牙 DIVINE 跨国测试（8,781 小时），"
-            "对比 RH≥90% 基线、折内调优 RH 阈值、露点差物理阈值与多要素逻辑回归（均以平衡准确率调优阈值）。"
-            "校准模型显著降低了漏报率，但跨气候带迁移仍存在误报率差异，不替代田间 LWD 实测。"
+            "对比 RH≥90%、露点风速物理规则（Gleason 类）、RH 斜率滞后物理规则及校准模型。"
         )
         lwd_cal = pd.read_csv(LWD_CALIBRATION_SUMMARY_PATH)
         st.dataframe(
@@ -273,6 +273,38 @@ with public_data_tab:
             values="mean_balanced_accuracy",
         )
         st.bar_chart(chart_frame)
+    if LWD_RELIABILITY_PATH.is_file():
+        st.markdown("**概率校准曲线（Reliability Diagram）与预期校准误差（ECE）**")
+        rel_df = pd.read_csv(LWD_RELIABILITY_PATH)
+        primary_rel = rel_df[rel_df["model_name"] == "multifeature_temporal_logistic"]
+        ece_by_ds = (
+            rel_df[["dataset", "model_name", "ece"]]
+            .drop_duplicates()
+            .sort_values(["dataset", "model_name"])
+        )
+        st.dataframe(
+            ece_by_ds.rename(
+                columns={
+                    "dataset": "数据集",
+                    "model_name": "概率模型",
+                    "ece": "预期校准误差 (ECE)",
+                }
+            ),
+            hide_index=True,
+            width="stretch",
+        )
+        rel_pivot = primary_rel.pivot(
+            index="bin_center",
+            columns="dataset",
+            values="observed_wet_freq",
+        )
+        rel_pivot["理想校准 (y=x)"] = rel_pivot.index.astype(float)
+        rel_pivot.index.name = "预测湿润概率分箱中心"
+        st.line_chart(rel_pivot)
+        st.caption(
+            "曲线越贴近“理想校准 (y=x)”对角线，输出概率越可靠；"
+            "意大利站点（约 63% 湿润率）迁移至半干旱西班牙（约 9% 湿润率）时实测频率明显低于预测概率，证明跨气候带必须重校准。"
+        )
     public_register = pd.read_csv(PUBLIC_DATA_REGISTER_PATH)
     st.markdown("**公开数据登记**")
     st.dataframe(

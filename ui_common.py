@@ -37,6 +37,12 @@ LWD_CALIBRATION_SUMMARY_PATH = (
     / "public_evidence_v0.2"
     / "lwd_calibration_summary.csv"
 )
+LWD_RELIABILITY_PATH = (
+    Path(__file__).resolve().parent
+    / "data"
+    / "public_evidence_v0.2"
+    / "lwd_calibration_reliability_bins.csv"
+)
 ONE_ACRE_OVERALL_SUMMARY_PATH = (
     Path(__file__).resolve().parent
     / "data"

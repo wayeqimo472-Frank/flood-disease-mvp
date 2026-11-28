@@ -1,6 +1,7 @@
 import pandas as pd
 import streamlit as st
 
+from robustness import UncertaintyBounds, analyze_robustness
 from simulation_evidence import load_summary
 from ui_components import page_header, render_window_cards
 from ui_common import (
@@ -13,6 +14,7 @@ from ui_common import (
     render_metric_cards,
     render_priority_notice,
     render_safety_notices,
+    scenario_from_inputs,
 )
 
 
@@ -114,6 +116,100 @@ with st.expander("APSIM 排水时限参考（模型仿真，非本地预测）",
     st.caption(
         "因此，当前决策仍以尽快排水为优先；上述百分比只属于验证情景的模型结果。"
     )
+
+st.subheader("不确定性区间与决策稳健性分析")
+st.caption(
+    "针对公开遥感重访周期和再分析气象网格平滑误差，对当前输入施加对称扰动区间，"
+    "识别哪些处置窗口在误差范围内保持不变（零现场数据也能放心执行），哪些窗口会翻转（必须优先核查）。"
+)
+bound_cols = st.columns(5)
+flood_days_delta = bound_cols[0].slider(
+    "明水天数误差 ±天",
+    min_value=0.0,
+    max_value=5.0,
+    value=2.0,
+    step=0.5,
+)
+drainage_delay_delta = bound_cols[1].slider(
+    "排水延迟误差 ±h",
+    min_value=0.0,
+    max_value=48.0,
+    value=24.0,
+    step=6.0,
+)
+temperature_delta = bound_cols[2].slider(
+    "日均温误差 ±℃",
+    min_value=0.0,
+    max_value=5.0,
+    value=2.0,
+    step=0.5,
+)
+humidity_delta = bound_cols[3].slider(
+    "相对湿度误差 ±%",
+    min_value=0.0,
+    max_value=20.0,
+    value=10.0,
+    step=2.0,
+)
+wind_delta = bound_cols[4].slider(
+    "作业风速误差 ±m/s",
+    min_value=0.0,
+    max_value=3.0,
+    value=1.0,
+    step=0.5,
+)
+
+base_scenario = scenario_from_inputs(inputs)
+bounds = UncertaintyBounds(
+    flood_days_delta=flood_days_delta,
+    drainage_delay_delta_hours=drainage_delay_delta,
+    temperature_delta_c=temperature_delta,
+    humidity_delta_pct=humidity_delta,
+    wind_delta_ms=wind_delta,
+)
+robustness_report = analyze_robustness(base_scenario, bounds)
+rob_metrics = st.columns(3)
+rob_metrics[0].metric("联合扰动情景数", f"{robustness_report.total_scenarios} 个")
+rob_metrics[1].metric(
+    "处置优先级一致率",
+    f"{robustness_report.risk_agreement_pct:.1f}%",
+)
+rob_metrics[2].metric(
+    "完全稳健窗口数",
+    f"{robustness_report.invariant_window_count} / {len(robustness_report.window_results)}",
+)
+
+rob_rows = []
+for w in robustness_report.window_results:
+    rob_rows.append(
+        {
+            "窗口": w.window,
+            "基准状态": WINDOW_STATUS_LABELS.get(w.base_status, w.base_status),
+            "区间一致率": f"{w.base_agreement_pct:.1f}%",
+            "稳健等级": w.stability_tier,
+            "敏感驱动因子": "、".join(w.sensitive_drivers) if w.sensitive_drivers else "无（区间内不敏感）",
+            "区间内出现状态": " / ".join(
+                WINDOW_STATUS_LABELS.get(s, s) for s in w.observed_statuses
+            ),
+        }
+    )
+st.dataframe(pd.DataFrame(rob_rows), hide_index=True, width="stretch")
+
+rob_left, rob_right = st.columns(2, gap="large")
+with rob_left:
+    st.markdown("**可跨误差稳健执行（无需等实测即可先做）**")
+    if robustness_report.invariant_actions:
+        for item in robustness_report.invariant_actions:
+            st.write(f"- {item}")
+    else:
+        st.write("- 当前参数处于阈值敏感区，建议结合右栏优先核查后再做绝对定论。")
+with rob_right:
+    st.markdown("**优先田间核查（决定窗口是否翻转）**")
+    if robustness_report.priority_verifications:
+        for item in robustness_report.priority_verifications:
+            st.write(f"- {item}")
+    else:
+        st.write("- 当前误差区间内各窗口均未发生状态翻转。")
 
 st.subheader("判断边界")
 known_col, unknown_col = st.columns(2, gap="large")

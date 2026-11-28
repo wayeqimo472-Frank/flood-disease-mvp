@@ -111,6 +111,11 @@ PUBLIC_V02_FILES = {
         "CC BY-NC 4.0",
         "derived",
     ),
+    "lwd_calibration_reliability_bins.csv": (
+        "LWD 代理概率校准分箱与 ECE 曲线",
+        "CC BY-NC 4.0",
+        "derived",
+    ),
 }
 
 REMOTE_PUBLIC_FILES = {
@@ -171,6 +176,48 @@ HISTORICAL_REPLAY_FILES = {
     ),
     "sheqi_2024_replay_timeline.csv": (
         "社旗 2024 历史洪涝与病害窗口回放时间轴",
+        "Project retrospective replay (mixed-open)",
+        "derived",
+        "https://github.com/wayeqimo472-Frank/flood-disease-mvp",
+    ),
+    "xunxian_2021_sar_flood_metrics.csv": (
+        "浚县 2021 蓄滞洪区 Sentinel-1A RTC 样本格淹没指标",
+        "Copernicus Sentinel-1 RTC / Planetary Computer (CC-BY-4.0 / Open)",
+        "remote_sensed",
+        "https://planetarycomputer.microsoft.com/dataset/sentinel-1-rtc",
+    ),
+    "xunxian_2021_weather_daily.csv": (
+        "浚县 2021 历史逐日气象与 LWD 代理对比",
+        "Open-Meteo ERA5/IFS + NASA POWER (CC BY 4.0 / Open)",
+        "derived",
+        "https://open-meteo.com/en/docs/historical-weather-api",
+    ),
+    "xunxian_2021_replay_timeline.csv": (
+        "浚县 2021 长历时滞洪与病害窗口回放时间轴",
+        "Project retrospective replay (mixed-open)",
+        "derived",
+        "https://github.com/wayeqimo472-Frank/flood-disease-mvp",
+    ),
+    "zhuozhou_2023_sar_flood_metrics.csv": (
+        "涿州 2023 行洪分洪 Sentinel-1A RTC 样本格淹没指标",
+        "Copernicus Sentinel-1 RTC / Planetary Computer (CC-BY-4.0 / Open)",
+        "remote_sensed",
+        "https://planetarycomputer.microsoft.com/dataset/sentinel-1-rtc",
+    ),
+    "zhuozhou_2023_weather_daily.csv": (
+        "涿州 2023 历史逐日气象与 LWD 代理对比",
+        "Open-Meteo ERA5/IFS + NASA POWER (CC BY 4.0 / Open)",
+        "derived",
+        "https://open-meteo.com/en/docs/historical-weather-api",
+    ),
+    "zhuozhou_2023_replay_timeline.csv": (
+        "涿州 2023 极速行洪退水与病害窗口回放时间轴",
+        "Project retrospective replay (mixed-open)",
+        "derived",
+        "https://github.com/wayeqimo472-Frank/flood-disease-mvp",
+    ),
+    "multi_event_comparison_summary.csv": (
+        "跨案例（社旗 2024 / 浚县 2021 / 涿州 2023）历史回放对比汇总",
         "Project retrospective replay (mixed-open)",
         "derived",
         "https://github.com/wayeqimo472-Frank/flood-disease-mvp",

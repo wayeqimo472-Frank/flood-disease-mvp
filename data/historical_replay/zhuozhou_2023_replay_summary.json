@@ -1,0 +1,30 @@
+{
+  "slug": "zhuozhou_2023",
+  "event_id": "FLOOD-2023-07-ZHUOZHOU",
+  "county_label": "保定涿州",
+  "flood_type": "蓄滞洪区＋超标准行洪",
+  "s1_scenes_count": 5,
+  "s1_scene_dates": [
+    "2023-07-12",
+    "2023-07-24",
+    "2023-08-05",
+    "2023-08-17",
+    "2023-08-29"
+  ],
+  "peak_sample_field": "ZHUOZHOU_LANGOUWA_SW",
+  "peak_date": "2023-08-05",
+  "peak_flooded_pct": 25.39,
+  "followup_date": "2023-08-17",
+  "followup_flooded_pct": 1.09,
+  "control_peak_pct": 0.55,
+  "open_meteo_storm_total_mm": 281.3,
+  "nasa_power_storm_total_mm": 264.13,
+  "official_precip_note": "F046 7-29 至 8-2 过程平均雨量 358.7 mm、最大 442.2 mm；张坊站洪峰 6200 m³/s",
+  "replay_days": 39,
+  "mean_daily_rh90_hours": 7.56,
+  "mean_daily_gleason_hours": 9.77,
+  "mean_daily_dpd_physical_hours": 18.03,
+  "mean_daily_logistic_lwd_hours": 17.74,
+  "dominant_risk_label": "中",
+  "boundary": "Zhuozhou F048 documents preventive UAV rust spraying without confirmed disease incidence; replay keeps diagnosis_status=not_assessed."
+}

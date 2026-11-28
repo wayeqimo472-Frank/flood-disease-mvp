@@ -1,0 +1,40 @@
+﻿date,crop_stage_assumed,precip_open_meteo_mm,nasa_power_precip_mm,mean_temp_c,mean_rh_pct,rh90_wet_hours,gleason_wet_hours,dpd_physical_wet_hours,logistic_lwd_wet_hours,risk_label,environment_suitability,drainage_status,scouting_status,diagnosis_status_win,control_status,official_milestone,replay_assumption_tag
+2023-07-29,VT,27.4,24.41,25.13,89.54,16,20,24,22,中,partial,active,blocked_safety,standby,monitor,F046 强降雨启动（7-29 至 8-2 平均 358.7 mm）,retrospective_flash_diversion_preventive_rust_unknown_occurrence
+2023-07-30,VT,97.6,112.49,24.46,94.83,24,24,24,24,中—高,optimal,active,blocked_safety,standby,prepare_early,,retrospective_flash_diversion_preventive_rust_unknown_occurrence
+2023-07-31,VT,110.4,73.28,25.67,94.21,20,24,24,24,中—高,optimal,active,blocked_safety,standby,prepare_early,,retrospective_flash_diversion_preventive_rust_unknown_occurrence
+2023-08-01,VT,45.8,45.65,26.26,93.0,19,24,24,24,中—高,optimal,active,blocked_safety,standby,prepare_early,,retrospective_flash_diversion_preventive_rust_unknown_occurrence
+2023-08-02,VT,0.1,8.3,28.57,84.04,8,8,19,21,中,partial,active,blocked_safety,standby,monitor,,retrospective_flash_diversion_preventive_rust_unknown_occurrence
+2023-08-03,VT,0.0,1.27,29.79,81.12,0,2,21,21,中,partial,active,blocked_safety,standby,monitor,,retrospective_flash_diversion_preventive_rust_unknown_occurrence
+2023-08-04,VT,5.5,1.76,29.0,88.96,15,16,24,24,中,partial,active,blocked_safety,standby,monitor,,retrospective_flash_diversion_preventive_rust_unknown_occurrence
+2023-08-05,VT,0.5,0.86,28.32,85.83,14,15,18,19,中,partial,active,blocked_safety,standby,monitor,Sentinel-1A 过境捕获兰沟洼蓄滞洪区行洪峰值淹没,retrospective_flash_diversion_preventive_rust_unknown_occurrence
+2023-08-06,VT,0.0,1.63,25.98,75.75,6,7,14,13,中,partial,active,blocked_safety,standby,monitor,,retrospective_flash_diversion_preventive_rust_unknown_occurrence
+2023-08-07,VT,0.0,1.36,26.0,74.67,0,0,16,16,中,partial,active,blocked_safety,standby,monitor,,retrospective_flash_diversion_preventive_rust_unknown_occurrence
+2023-08-08,VT,0.0,0.09,27.3,79.33,3,6,17,17,中,partial,active,blocked_safety,standby,monitor,,retrospective_flash_diversion_preventive_rust_unknown_occurrence
+2023-08-09,VT,0.1,0.05,28.73,78.21,3,9,18,18,中,partial,delayed,scheduled,standby,monitor,"F047 官方通报：农作物受灾 28,621 公顷，8-09 全部退水",retrospective_flash_diversion_preventive_rust_unknown_occurrence
+2023-08-10,VT,1.1,0.01,28.37,75.25,1,9,20,20,中,partial,delayed,scheduled,standby,monitor,,retrospective_flash_diversion_preventive_rust_unknown_occurrence
+2023-08-11,VT,18.9,23.75,26.61,85.42,6,16,24,24,中,partial,delayed,scheduled,standby,monitor,,retrospective_flash_diversion_preventive_rust_unknown_occurrence
+2023-08-12,R3,5.5,18.35,26.85,83.08,9,8,18,19,中,partial,delayed,scheduled,standby,monitor,,retrospective_flash_diversion_preventive_rust_unknown_occurrence
+2023-08-13,R3,0.0,3.63,27.41,79.38,9,10,16,17,中,partial,delayed,scheduled,standby,monitor,,retrospective_flash_diversion_preventive_rust_unknown_occurrence
+2023-08-14,R3,0.0,0.0,28.21,76.96,5,4,17,17,中,partial,delayed,scheduled,standby,monitor,,retrospective_flash_diversion_preventive_rust_unknown_occurrence
+2023-08-15,R3,0.0,0.0,28.18,75.12,2,4,17,16,中,partial,delayed,scheduled,standby,monitor,,retrospective_flash_diversion_preventive_rust_unknown_occurrence
+2023-08-16,R3,0.0,0.47,29.04,75.96,1,2,16,17,中,partial,delayed,scheduled,standby,monitor,,retrospective_flash_diversion_preventive_rust_unknown_occurrence
+2023-08-17,R3,0.0,8.23,28.2,80.71,9,2,17,17,中,partial,delayed,scheduled,standby,monitor,Sentinel-1A 重访确认兰沟洼明水消退至 <2%,retrospective_flash_diversion_preventive_rust_unknown_occurrence
+2023-08-18,R3,0.0,0.55,29.17,67.46,1,4,13,11,中,partial,delayed,scheduled,standby,monitor,,retrospective_flash_diversion_preventive_rust_unknown_occurrence
+2023-08-19,R3,0.0,0.04,28.27,73.88,3,4,15,14,中,partial,delayed,scheduled,standby,monitor,,retrospective_flash_diversion_preventive_rust_unknown_occurrence
+2023-08-20,R3,13.9,15.13,26.5,84.38,10,20,24,24,中,partial,delayed,scheduled,standby,monitor,,retrospective_flash_diversion_preventive_rust_unknown_occurrence
+2023-08-21,R3,3.7,17.38,25.5,82.5,9,9,18,18,中,partial,delayed,scheduled,standby,monitor,,retrospective_flash_diversion_preventive_rust_unknown_occurrence
+2023-08-22,R3,0.0,0.15,24.96,62.08,3,3,8,7,中,partial,delayed,scheduled,standby,monitor,,retrospective_flash_diversion_preventive_rust_unknown_occurrence
+2023-08-23,R3,3.6,0.34,24.47,73.5,4,9,15,16,中,partial,delayed,scheduled,standby,monitor,,retrospective_flash_diversion_preventive_rust_unknown_occurrence
+2023-08-24,R3,6.4,10.1,21.74,87.83,12,21,24,24,中,partial,delayed,scheduled,standby,monitor,,retrospective_flash_diversion_preventive_rust_unknown_occurrence
+2023-08-25,R3,0.0,0.28,22.36,83.0,9,9,18,19,中,partial,delayed,scheduled,standby,monitor,F048 投入 300 万元+50 架无人机完成 16/20 万亩飞防（预防南方锈病）,retrospective_flash_diversion_preventive_rust_unknown_occurrence
+2023-08-26,R3,0.0,2.84,23.55,67.71,0,0,13,8,中,partial,delayed,scheduled,standby,monitor,,retrospective_flash_diversion_preventive_rust_unknown_occurrence
+2023-08-27,R3,12.7,2.74,20.98,87.0,12,19,24,21,中,partial,delayed,scheduled,standby,monitor,,retrospective_flash_diversion_preventive_rust_unknown_occurrence
+2023-08-28,R3,0.1,0.0,22.8,69.75,7,7,13,11,中,partial,delayed,scheduled,standby,monitor,,retrospective_flash_diversion_preventive_rust_unknown_occurrence
+2023-08-29,R3,0.0,0.01,22.59,64.96,0,1,12,11,中,partial,delayed,scheduled,standby,monitor,,retrospective_flash_diversion_preventive_rust_unknown_occurrence
+2023-08-30,R3,0.0,0.04,23.1,72.62,5,6,14,14,中,partial,delayed,scheduled,standby,monitor,,retrospective_flash_diversion_preventive_rust_unknown_occurrence
+2023-08-31,R3,0.1,0.15,23.17,76.25,4,5,16,16,中,partial,delayed,scheduled,standby,monitor,F048 计划完成全部 20 万亩存活玉米统防统治,retrospective_flash_diversion_preventive_rust_unknown_occurrence
+2023-09-01,R3,0.0,0.39,23.88,74.96,8,8,14,13,中,partial,delayed,scheduled,standby,monitor,,retrospective_flash_diversion_preventive_rust_unknown_occurrence
+2023-09-02,R3,11.0,16.21,23.42,82.38,9,15,23,23,中,partial,delayed,scheduled,standby,monitor,,retrospective_flash_diversion_preventive_rust_unknown_occurrence
+2023-09-03,R3,0.0,1.79,24.08,81.5,11,12,17,17,中,partial,delayed,scheduled,standby,monitor,,retrospective_flash_diversion_preventive_rust_unknown_occurrence
+2023-09-04,R3,0.0,0.01,25.58,82.17,10,11,17,17,中,partial,delayed,scheduled,standby,monitor,,retrospective_flash_diversion_preventive_rust_unknown_occurrence
+2023-09-05,R3,0.1,0.0,26.46,78.83,8,8,17,18,中,partial,delayed,scheduled,standby,monitor,,retrospective_flash_diversion_preventive_rust_unknown_occurrence

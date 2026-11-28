@@ -1,0 +1,4 @@
+﻿event_id,county,flood_type,s1_scenes_count,peak_sample_grid,peak_date,peak_flooded_pct,followup_date,followup_flooded_pct,control_peak_pct,reanalysis_storm_open_meteo_mm,reanalysis_storm_nasa_power_mm,official_storm_context,mean_daily_rh90_hours,mean_daily_dpd_physical_hours,dominant_risk_label
+FLOOD-2024-07-SHEQI,南阳社旗 (2024),平原内涝,5,SHEQI_PLAIN_01,2024-07-16,41.73,2024-07-28,0.49,0.25,228.2,235.23,7-14 至 18 累计 870.8 mm（破县纪录），8-27 市局确认南方锈病点名社旗,6.28,18.46,中
+FLOOD-2021-07-XUNXIAN,鹤壁浚县 (2021),蓄滞洪区长历时深水（≥3个月）,10,XUNXIAN_XIAOHE_S,2021-07-27,30.68,2021-08-20,9.16,0.13,149.2,459.4,7·20 极端暴雨+蓄滞洪区行蓄洪（小河镇 62 村 10.81 万亩受淹，蓄滞洪区 11-04 基本退水）,8.23,19.43,高
+FLOOD-2023-07-ZHUOZHOU,保定涿州 (2023),蓄滞洪区＋超标准行洪,5,ZHUOZHOU_LANGOUWA_SW,2023-08-05,25.39,2023-08-17,1.09,0.55,281.3,264.13,F046 7-29 至 8-2 过程平均雨量 358.7 mm、最大 442.2 mm；张坊站洪峰 6200 m³/s,7.56,18.03,中

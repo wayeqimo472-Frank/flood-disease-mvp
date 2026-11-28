@@ -1,0 +1,154 @@
+{
+  "type": "FeatureCollection",
+  "metadata": {
+    "case_id": "henan_maize_2026",
+    "event_id": "FLOOD-2023-07-ZHUOZHOU",
+    "note": "Regional sample grids for 保定涿州 retrospective SAR replay; not parcel surveys."
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "field_id": "ZHUOZHOU_LANGOUWA_SW",
+        "role": "flooded_sample_grid",
+        "zone": "涿州兰沟洼蓄滞洪区西南农田样本格",
+        "geometry_origin": "regional_sample_grid_not_parcel_survey"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              116.0,
+              39.24
+            ],
+            [
+              116.04,
+              39.24
+            ],
+            [
+              116.04,
+              39.28
+            ],
+            [
+              116.0,
+              39.28
+            ],
+            [
+              116.0,
+              39.24
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "field_id": "ZHUOZHOU_LANGOUWA_SE",
+        "role": "flooded_sample_grid",
+        "zone": "涿州兰沟洼蓄滞洪区东南农田样本格",
+        "geometry_origin": "regional_sample_grid_not_parcel_survey"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              116.04,
+              39.24
+            ],
+            [
+              116.08,
+              39.24
+            ],
+            [
+              116.08,
+              39.28
+            ],
+            [
+              116.04,
+              39.28
+            ],
+            [
+              116.04,
+              39.24
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "field_id": "ZHUOZHOU_LANGOUWA_NW",
+        "role": "flooded_sample_grid",
+        "zone": "涿州兰沟洼蓄滞洪区西北农田样本格",
+        "geometry_origin": "regional_sample_grid_not_parcel_survey"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              116.0,
+              39.28
+            ],
+            [
+              116.04,
+              39.28
+            ],
+            [
+              116.04,
+              39.32
+            ],
+            [
+              116.0,
+              39.32
+            ],
+            [
+              116.0,
+              39.28
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "field_id": "ZHUOZHOU_CTRL_NW",
+        "role": "control_sample_grid",
+        "zone": "涿州西北部高地农田对照样本格",
+        "geometry_origin": "regional_sample_grid_not_parcel_survey"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              115.82,
+              39.54
+            ],
+            [
+              115.88,
+              39.54
+            ],
+            [
+              115.88,
+              39.6
+            ],
+            [
+              115.82,
+              39.6
+            ],
+            [
+              115.82,
+              39.54
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}
